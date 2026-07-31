@@ -8,7 +8,8 @@
     "generate": "node src/generate.js --source=school",
     "generate:sample": "node src/generate.js --source=school --week-start=2026-08-25",
     "generate:sheet": "node src/generate.js --source=sheet --week-start=2026-08-31",
-    "import:xlsx": "node src/import-xlsx.js"
+    "import:xlsx": "node src/import-xlsx.js",
+    "send:mail": "node src/send-mail.js"
   },
   "dependencies": {
     "xlsx": "^0.18.5"

@@ -11,14 +11,33 @@ AI-Driven School 2ヶ月目課題「面倒な報告を自動化するツール�
 | トリガー | 毎週日曜 20:00（GitHub Actions）／手動実行も可 |
 | ソース元 | 学校の年間予定Excel（またはそこから書き出したJSON） |
 | 処理 | 全月の「行事予定」列から翌月曜〜日曜を抽出 → HTML生成 |
-| 届ける先 | 同じURLの印刷用ページ（GitHub Pages） |
+| 届ける先 | GitHub Pagesの印刷用URL ＋ 更新通知メール（Resend → Gmail） |
 
 ## 公開URL
 
 https://awayuki-ai.github.io/weekly-blackboard-schedule/
 
 - 毎週日曜 20:00（JST）に自動更新
+- 更新後、設定したGmailへURLをメール送信
 - リポジトリ: https://github.com/Awayuki-AI/weekly-blackboard-schedule
+
+## メール通知の設定（Resend → Gmail）
+
+日曜の自動更新後（または手動 Run workflow 後）に、公開URLをメールで送ります。
+
+1. [Resend](https://resend.com/) でアカウント作成（個人GmailでOK）  
+2. API Keys → キーを作成してコピー  
+3. リポジトリの Settings → Secrets and variables → Actions に追加:
+
+| Secret名 | 内容 |
+|----------|------|
+| `RESEND_API_KEY` | Resend の API キー |
+| `MAIL_TO` | 受け取り先（いまは個人Gmail。2学期に学校Gmailへ変更） |
+| `MAIL_FROM` | 任意。未設定なら `onboarding@resend.dev`（Resendのテスト用差出人） |
+
+4. Actions → `Weekly blackboard schedule` → Run workflow でテスト
+
+補足: テスト用差出人 `onboarding@resend.dev` は、Resendに登録したメールアドレス宛にしか送れない制限があることがあります。届かないときは Resend のダッシュボードで宛先制限を確認してください。学校ドメインを使う場合は、あとでドメイン認証して `MAIL_FROM` を差し替えます。
 
 ## 学校Excelの置き方（おすすめ）
 

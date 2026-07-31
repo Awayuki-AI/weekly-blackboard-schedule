@@ -47,3 +47,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Email the public URL
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url || 'https://awayuki-ai.github.io/weekly-blackboard-schedule/' }}
+        run: node src/send-mail.js
