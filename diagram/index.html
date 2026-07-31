@@ -210,14 +210,18 @@
       background: transparent;
       border: none;
       padding: 0;
-      margin: 0 -0.25rem;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .shot-wrap img {
       display: block;
-      width: 100%;
-      max-width: none;
+      width: min(100%, 920px);
+      max-width: 100%;
       height: auto;
+      margin: 0 auto;
       border: 2px solid #9fd8f5;
       border-radius: 4px;
       box-shadow: 0 12px 32px rgba(74, 163, 212, 0.18);
@@ -226,9 +230,11 @@
 
     .shot-caption {
       margin-top: 0.55rem;
+      width: min(100%, 920px);
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.55;
+      text-align: center;
     }
 
     .story {
