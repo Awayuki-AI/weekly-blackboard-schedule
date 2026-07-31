@@ -31,7 +31,7 @@ jobs:
           node-version: "20"
 
       - name: Generate weekly HTML
-        run: node src/generate.js --source=sheet
+        run: node src/generate.js --source=school
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -1,8 +1,31 @@
 {
+  "defaultSource": "school",
+  "schoolCsvPath": "data/school-annual.csv",
+  "localCsvPath": "data/annual-schedule.sample.csv",
   "spreadsheetId": "1WJ8ahzcOvxWOk3LBvJ0Jrz-5EbvmywhzyXQwhpcg-T8",
   "gid": "601718258",
-  "localCsvPath": "data/annual-schedule.sample.csv",
   "timezone": "Asia/Tokyo",
   "outputPath": "public/index.html",
-  "title": "今週の予定（黒板用）"
+  "title": "今週の予定（黒板用）",
+  "excludeKeywords": [
+    "職員会議",
+    "職員朝会",
+    "校内研究会",
+    "校内研修",
+    "職員研修",
+    "研修会",
+    "打合せ",
+    "打ち合わせ",
+    "連絡会",
+    "出張",
+    "事務連絡",
+    "評議員",
+    "運営協議会"
+  ],
+  "excludeAudienceKeywords": [
+    "教員",
+    "職員",
+    "教職員",
+    "保護者"
+  ]
 }
