@@ -1,0 +1,11 @@
+{
+  "name": "weekly-blackboard-schedule",
+  "version": "1.0.0",
+  "private": true,
+  "description": "年間予定から子ども向けの週次黒板予定表を自動生成する",
+  "type": "module",
+  "scripts": {
+    "generate": "node src/generate.js",
+    "generate:sample": "node src/generate.js --source=local --week-start=2026-08-31"
+  }
+}

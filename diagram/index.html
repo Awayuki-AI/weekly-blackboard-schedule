@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>黒板予定ツールの4パーツ</title>
+  <style>
+    :root {
+      --ink: #1c2b33;
+      --muted: #5a6d78;
+      --band: #0f5c6e;
+      --paper: #f4fafb;
+      --card: #ffffff;
+      --line: #c5d4dc;
+      --accent: #c45c26;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, #d5eef2 0%, transparent 55%),
+        linear-gradient(180deg, #eaf5f7 0%, var(--paper) 100%);
+      min-height: 100vh;
+      padding: 2rem 1.25rem 3rem;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header { margin-bottom: 1.75rem; }
+    .badge {
+      display: inline-block;
+      color: var(--band);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      font-size: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+    .lead { color: var(--muted); line-height: 1.7; max-width: 40rem; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+    .part {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--band);
+      padding: 1rem 0.9rem 1.1rem;
+      min-height: 11rem;
+    }
+    .part:nth-child(4) { border-top-color: var(--accent); }
+    .num {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--band);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+    }
+    .part h2 {
+      font-size: 1.15rem;
+      margin-bottom: 0.55rem;
+    }
+    .part p {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .part strong { color: var(--ink); font-weight: 700; }
+    .arrow-row {
+      display: none;
+    }
+    .story {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1.1rem 1.2rem;
+      line-height: 1.7;
+    }
+    .story h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      color: var(--band);
+    }
+    @media (max-width: 800px) {
+      .flow { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">ADS 2ヶ月目課題</div>
+      <h1>面倒な報告を自動化する<br />黒板予定ツールの4パーツ</h1>
+      <p class="lead">
+        毎週、年間予定から子ども向けだけを抜き出し、月曜に渡す表を作っていた作業を、
+        日曜夜に自動更新される印刷用ページへ置き換える。
+      </p>
+    </header>
+
+    <section class="flow" aria-label="4パーツ">
+      <article class="part">
+        <div class="num">01 TRIGGER</div>
+        <h2>トリガー</h2>
+        <p><strong>毎週日曜 20:00</strong><br />GitHub Actions が起動。朝6時出勤前に表ができている。</p>
+      </article>
+      <article class="part">
+        <div class="num">02 SOURCE</div>
+        <h2>ソース元</h2>
+        <p><strong>Googleスプレッドシート</strong><br />年間予定。子ども向け列（○／×）で抽出対象を指定。</p>
+      </article>
+      <article class="part">
+        <div class="num">03 PROCESS</div>
+        <h2>処理</h2>
+        <p><strong>翌月曜〜日曜を抽出</strong><br />子ども向け＝○だけ残し、印刷しやすいHTMLにする。</p>
+      </article>
+      <article class="part">
+        <div class="num">04 DELIVER</div>
+        <h2>届ける先</h2>
+        <p><strong>同じURLの印刷ページ</strong><br />開いて印刷し、子どもに渡して黒板へ書いてもらう。</p>
+      </article>
+    </section>
+
+    <section class="story">
+      <h3>消えた面倒</h3>
+      <p>
+        以前: 掲示板の年間予定を目で追い → 子どもに関係する行をピックアップ → 表を作る → 月曜に渡す。<br />
+        いま: シートを更新しておけば、日曜夜にページが更新される。月曜朝は印刷するだけ。
+      </p>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>今週の予定（黒板用） 8/31〜</title>
+  <style>
+    :root {
+      --ink: #1c2b33;
+      --muted: #5a6d78;
+      --line: #c5d4dc;
+      --band: #0f5c6e;
+      --band-soft: #e6f3f5;
+      --paper: #f7fbfc;
+      --accent: #c45c26;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic UI", "Noto Sans JP", sans-serif;
+      background:
+        radial-gradient(ellipse 70% 40% at 10% 0%, #d9eef2 0%, transparent 55%),
+        linear-gradient(180deg, #eef6f8 0%, var(--paper) 40%, #fff 100%);
+      min-height: 100vh;
+    }
+    .sheet {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header {
+      border-bottom: 4px solid var(--band);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kicker {
+      color: var(--band);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.85rem;
+      margin: 0 0 0.35rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      line-height: 1.25;
+      font-weight: 800;
+    }
+    .range {
+      margin: 0.5rem 0 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .meta {
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.85rem 0.9rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th[scope="row"] {
+      width: 8.5rem;
+      background: var(--band-soft);
+      font-size: 1.05rem;
+      white-space: nowrap;
+    }
+    td {
+      font-size: 1.15rem;
+      line-height: 1.45;
+    }
+    .event { font-weight: 700; }
+    .audience {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid var(--band);
+      color: var(--band);
+      font-size: 0.8rem;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .note {
+      width: 30%;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .empty { color: #9aa8b0; }
+    .howto {
+      margin-top: 1.25rem;
+      padding: 1rem 1.1rem;
+      background: #fff;
+      border-left: 5px solid var(--accent);
+    }
+    .howto p { margin: 0; line-height: 1.6; }
+    footer {
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    @media print {
+      body { background: #fff; }
+      .sheet { padding: 0; max-width: none; }
+      .howto, footer { display: none; }
+      table { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <header>
+      <p class="kicker">BLACKBOARD SCHEDULE</p>
+      <h1>今週の予定（黒板用）</h1>
+      <p class="range">8/31（月）〜 9/6（日）</p>
+      <p class="meta">子ども向けの予定だけを抜粋しています</p>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">日付</th>
+          <th scope="col">予定</th>
+          <th scope="col">メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+            <th scope="row" rowspan="2">8/31（月）</th>
+            <td>
+              <span class="event">始業式</span>
+              <span class="audience">全校</span>
+            </td>
+            <td class="note">1学期終業後の始業式</td>
+          </tr>
+<tr>
+            
+            <td>
+              <span class="event">給食開始</span>
+              <span class="audience">全校</span>
+            </td>
+            <td class="note"></td>
+          </tr>
+<tr>
+            <th scope="row" rowspan="1">9/1（火）</th>
+            <td>
+              <span class="event">朝会</span>
+              <span class="audience">全校</span>
+            </td>
+            <td class="note"></td>
+          </tr>
+<tr>
+            <th scope="row" rowspan="1">9/2（水）</th>
+            <td>
+              <span class="event">委員会活動</span>
+              <span class="audience">4〜6年</span>
+            </td>
+            <td class="note">低学年は通常授業</td>
+          </tr>
+<tr>
+            <th scope="row" rowspan="1">9/3（木）</th>
+            <td>
+              <span class="event">避難訓練</span>
+              <span class="audience">全校</span>
+            </td>
+            <td class="note">地震想定</td>
+          </tr>
+<tr>
+            <th scope="row" rowspan="1">9/4（金）</th>
+            <td>
+              <span class="event">クラブ活動</span>
+              <span class="audience">4〜6年</span>
+            </td>
+            <td class="note"></td>
+          </tr>
+<tr>
+          <th scope="row">9/5（土）</th>
+          <td class="empty">（なし）</td>
+          <td></td>
+        </tr>
+<tr>
+          <th scope="row">9/6（日）</th>
+          <td class="empty">（なし）</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <section class="howto">
+      <p>月曜にこの表を印刷（または画面表示）して子どもに渡し、黒板へ書いてもらいます。</p>
+    </section>
+
+    <footer>
+      更新: 2026/07/31 9:34 ／ ソース: Google Sheets (1WJ8ahzcOvxWOk3LBvJ0Jrz-5EbvmywhzyXQwhpcg-T8) ／ 件数: 6
+    </footer>
+  </main>
+</body>
+</html>

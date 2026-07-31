@@ -1,0 +1,8 @@
+{
+  "spreadsheetId": "1WJ8ahzcOvxWOk3LBvJ0Jrz-5EbvmywhzyXQwhpcg-T8",
+  "gid": "601718258",
+  "localCsvPath": "data/annual-schedule.sample.csv",
+  "timezone": "Asia/Tokyo",
+  "outputPath": "public/index.html",
+  "title": "今週の予定（黒板用）"
+}
