@@ -2,5 +2,8 @@ node_modules/
 .DS_Store
 *.log
 
+# 学校の原本（日直名などが含まれる）は公開リポジトリに上げない
+data/school-annual.xlsx
 data/*行事*.csv
 data/R*.csv
+data/R*.xlsx

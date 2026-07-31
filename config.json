@@ -1,5 +1,7 @@
 {
   "defaultSource": "school",
+  "schoolXlsxPath": "data/school-annual.xlsx",
+  "schoolEventsJsonPath": "data/school-events.json",
   "schoolCsvPath": "data/school-annual.csv",
   "localCsvPath": "data/annual-schedule.sample.csv",
   "spreadsheetId": "1WJ8ahzcOvxWOk3LBvJ0Jrz-5EbvmywhzyXQwhpcg-T8",

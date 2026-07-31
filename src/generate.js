@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadEventsFromXlsx } from "./import-xlsx.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -374,6 +375,27 @@ async function loadEvents(source) {
   }
 
   if (source === "school") {
+    const xlsxRel = config.schoolXlsxPath || "data/school-annual.xlsx";
+    const xlsxPath = path.join(root, xlsxRel);
+    if (fs.existsSync(xlsxPath)) {
+      const rows = loadEventsFromXlsx(xlsxPath);
+      return { rows, label: xlsxRel };
+    }
+
+    const jsonRel = config.schoolEventsJsonPath || "data/school-events.json";
+    const jsonPath = path.join(root, jsonRel);
+    if (fs.existsSync(jsonPath)) {
+      const slim = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+      const rows = slim.map((e) => ({
+        日付: e.date,
+        行事名: e.title,
+        対象: "",
+        メモ: "",
+        子ども向け: "○",
+      }));
+      return { rows, label: jsonRel };
+    }
+
     const files = listSchoolCsvFiles();
     const rows = [];
     for (const f of files) {
@@ -393,7 +415,7 @@ async function loadEvents(source) {
       [
         "Googleスプレッドシートを読めませんでした。",
         "共有設定を「リンクを知っている全員」＋「閲覧者」にしてください。",
-        "または --source=school で学校CSVから生成できます。",
+        "または --source=school で学校Excel/CSVから生成できます。",
       ].join("\n"),
     );
   }

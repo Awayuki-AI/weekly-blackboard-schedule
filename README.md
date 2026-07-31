@@ -9,8 +9,8 @@ AI-Driven School 2ヶ月目課題「面倒な報告を自動化するツール�
 | パーツ | このツールでの中身 |
 |--------|-------------------|
 | トリガー | 毎週日曜 20:00（GitHub Actions）／手動実行も可 |
-| ソース元 | 学校の年間予定をダウンロードしたCSV（`data/school-annual.csv`） |
-| 処理 | 翌月曜〜日曜を抽出。教員・保護者向けなどはキーワードで除外 → HTML生成 |
+| ソース元 | 学校の年間予定Excel（またはそこから書き出したJSON） |
+| 処理 | 全月の「行事予定」列から翌月曜〜日曜を抽出 → HTML生成 |
 | 届ける先 | 同じURLの印刷用ページ（GitHub Pages） |
 
 ## 公開URL
@@ -20,37 +20,40 @@ https://awayuki-ai.github.io/weekly-blackboard-schedule/
 - 毎週日曜 20:00（JST）に自動更新
 - リポジトリ: https://github.com/Awayuki-AI/weekly-blackboard-schedule
 
-## 学校CSVの置き方（メインの使い方）
+## 学校Excelの置き方（おすすめ）
 
-校務の年間予定は **月ごとの行事予定表** 形式です（列: 日 / 曜 / 行事予定 / 諸会議等）。
+CSVは月ごとですが、**Excelなら年間まとめて**ダウンロードできます。
 
-1. 学校のスプレッドシートを開く  
-2. **ファイル → ダウンロード → カンマ区切り形式（.csv）**  
-3. 次のどちらかで置く  
-
-- いちばん簡単: `data/school-annual.csv` という名前で保存（上書き差し替え）  
-- 月ごと: `data/` に「行事」を含む名前のまま置く（`school-annual.csv` が無いとき、それらを全部読みます）
-
-4. 生成する
+1. 学校の年間予定を Excel（.xlsx）でダウンロード  
+2. `data/school-annual.xlsx` として保存  
+3. 公開用データに変換（日直名などを除く）
 
 ```bash
-cd weekly-blackboard-schedule
+npm install
+npm run import:xlsx
+```
+
+4. 今週分を生成
+
+```bash
 npm run generate
 ```
 
-5. GitHubへ反映する
+5. GitHubへ反映（**xlsxは上げない**。jsonだけ上げる）
 
 ```bash
-git add data/
-git commit -m "Update school schedule CSV"
+git add data/school-events.json public/index.html
+git commit -m "Update school schedule from annual Excel"
 git push
 ```
 
-### 読み方のポイント
+優先順位: `school-annual.xlsx` → `school-events.json` → CSV
 
-- **行事予定** 列だけを黒板用に使う（**諸会議等** は使いません）  
-- タイトルの「令和8年度４月」から年月を判定し、日付列の「日」と組み合わせます  
-- 学校側が更新されたら、同じ手順でCSVを差し替えて push してください（自動追従はしません）
+`school-annual.xlsx` は日直名などが入るため `.gitignore` 済みです。自動更新（GitHub Actions）は `school-events.json` を読みます。
+
+### CSVでも可（月ごと）
+
+月ごとのCSVしかない場合は、従来どおり `data/school-annual.csv` や「行事」付きファイル名でも動きます。
 
 ## いちばん短い確認（サンプル）
 
