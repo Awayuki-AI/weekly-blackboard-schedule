@@ -6,16 +6,21 @@
   <title>面倒な報告を自動化する — 黒板予定ツールの流れ</title>
   <style>
     :root {
-      --ink: #1c2b33;
-      --muted: #5a6d78;
-      --band: #0f5c6e;
-      --band-deep: #0a4452;
-      --mint: #e6f3f5;
-      --paper: #f4fafb;
+      --ink: #243b55;
+      --muted: #5a7a90;
+      --sky: #7ec8e8;
+      --sky-soft: #d7f0fb;
+      --aqua: #b8ebe4;
+      --aqua-deep: #3aa8a0;
+      --mint: #d8f5df;
+      --leaf: #3faf6b;
+      --lemon: #ffe566;
+      --lemon-soft: #fff6b8;
+      --paper: #f3fbff;
       --card: #ffffff;
-      --line: #c5d4dc;
-      --accent: #c45c26;
-      --ok: #1f7a4c;
+      --line: #c5e4f2;
+      --band: #4aa3d4;
+      --band-deep: #2b7eb5;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,44 +29,49 @@
       font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(ellipse 90% 45% at 50% -8%, #d5eef2 0%, transparent 55%),
-        linear-gradient(180deg, #eaf5f7 0%, var(--paper) 45%, #fff 100%);
+        radial-gradient(ellipse 100% 55% at 50% -5%, #9fd8f5 0%, transparent 58%),
+        radial-gradient(ellipse 50% 35% at 90% 20%, #fff6b8 0%, transparent 50%),
+        linear-gradient(180deg, #e8f7ff 0%, var(--paper) 40%, #f7fffb 100%);
       min-height: 100vh;
-      padding: 2rem 1.25rem 3.5rem;
+      padding: 2rem 1rem 3.5rem;
     }
 
-    .wrap { max-width: 980px; margin: 0 auto; }
+    .wrap { max-width: 1040px; margin: 0 auto; }
 
     header {
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
       animation: rise 0.6s ease both;
     }
 
     .badge {
       display: inline-block;
-      color: var(--band);
+      background: var(--lemon-soft);
+      color: #7a6a10;
       font-weight: 800;
       letter-spacing: 0.08em;
       font-size: 0.78rem;
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid #f0e089;
     }
 
     h1 {
-      font-size: clamp(1.7rem, 4.2vw, 2.35rem);
+      font-size: clamp(1.75rem, 4.2vw, 2.4rem);
       line-height: 1.28;
       margin-bottom: 0.55rem;
       font-weight: 800;
+      color: #1f5f8a;
     }
 
     .lead {
       color: var(--muted);
       line-height: 1.75;
-      max-width: 42rem;
+      max-width: 44rem;
       font-size: 1.02rem;
     }
 
     section {
-      margin-bottom: 1.75rem;
+      margin-bottom: 1.6rem;
       animation: rise 0.7s ease both;
     }
 
@@ -74,8 +84,8 @@
       font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: 0.08em;
-      color: var(--band);
-      margin-bottom: 0.7rem;
+      color: var(--band-deep);
+      margin-bottom: 0.65rem;
     }
 
     .compare {
@@ -89,10 +99,11 @@
       border: 1px solid var(--line);
       padding: 1.15rem 1.2rem;
       min-height: 8.5rem;
+      box-shadow: 0 6px 18px rgba(74, 163, 212, 0.08);
     }
 
-    .panel.before { border-top: 5px solid #9aa8b0; }
-    .panel.after { border-top: 5px solid var(--ok); }
+    .panel.before { border-top: 5px solid #9ec4d8; }
+    .panel.after { border-top: 5px solid var(--leaf); background: linear-gradient(180deg, #f3fff7 0%, #fff 55%); }
 
     .panel h2 {
       font-size: 1.05rem;
@@ -119,19 +130,23 @@
       padding: 1rem 0.85rem 1.1rem;
       min-height: 11.5rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 18px rgba(74, 163, 212, 0.07);
     }
+
+    .part:nth-child(1) { border-top-color: #5bb8e8; }
+    .part:nth-child(2) { border-top-color: #57c4b8; }
+    .part:nth-child(3) { border-top-color: #62c47a; }
+    .part:nth-child(4) { border-top-color: #f0d24a; }
 
     .part:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(15, 92, 110, 0.1);
+      box-shadow: 0 10px 24px rgba(74, 163, 212, 0.14);
     }
-
-    .part:nth-child(4) { border-top-color: var(--accent); }
 
     .num {
       font-size: 0.72rem;
       font-weight: 800;
-      color: var(--band);
+      color: var(--band-deep);
       letter-spacing: 0.08em;
       margin-bottom: 0.3rem;
     }
@@ -139,6 +154,7 @@
     .part h3 {
       font-size: 1.12rem;
       margin-bottom: 0.5rem;
+      color: #1f5f8a;
     }
 
     .part p {
@@ -154,18 +170,30 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 0.45rem;
-      background: var(--card);
+      background: rgba(255, 255, 255, 0.85);
       border: 1px solid var(--line);
       padding: 1rem 1.1rem;
     }
 
     .chip {
-      background: var(--mint);
-      color: var(--band-deep);
+      background: var(--sky-soft);
+      color: #1f5f8a;
       font-weight: 700;
       font-size: 0.88rem;
       padding: 0.45rem 0.7rem;
-      border: 1px solid #b7d7de;
+      border: 1px solid #b5dff2;
+    }
+
+    .chip:nth-child(3n) {
+      background: var(--mint);
+      border-color: #b6e6c3;
+      color: #2a7a48;
+    }
+
+    .chip:nth-child(5n) {
+      background: var(--lemon-soft);
+      border-color: #f0e089;
+      color: #7a6a10;
     }
 
     .arrow {
@@ -174,37 +202,46 @@
       font-size: 1.1rem;
     }
 
+    .shot-section .section-title {
+      margin-bottom: 0.5rem;
+    }
+
     .shot-wrap {
-      background: var(--card);
-      border: 1px solid var(--line);
-      padding: 0.85rem;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0 -0.25rem;
     }
 
     .shot-wrap img {
       display: block;
       width: 100%;
+      max-width: none;
       height: auto;
-      border: 1px solid var(--line);
+      border: 2px solid #9fd8f5;
+      border-radius: 4px;
+      box-shadow: 0 12px 32px rgba(74, 163, 212, 0.18);
+      background: #fff;
     }
 
     .shot-caption {
-      margin-top: 0.65rem;
+      margin-top: 0.55rem;
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.55;
     }
 
     .story {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--accent);
+      background: linear-gradient(180deg, #fffef5 0%, #fff 60%);
+      border: 1px solid #f0e089;
+      border-left: 5px solid var(--lemon);
       padding: 1.15rem 1.25rem;
       line-height: 1.75;
     }
 
     .story h3 {
       font-size: 1rem;
-      color: var(--band);
+      color: #1f5f8a;
       margin-bottom: 0.4rem;
     }
 
@@ -317,7 +354,7 @@
       </div>
     </section>
 
-    <section aria-label="Tool screenshot">
+    <section class="shot-section" aria-label="Tool screenshot">
       <div class="section-title">04 完成した報告ツールの画面</div>
       <div class="shot-wrap">
         <img
