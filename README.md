@@ -13,6 +13,13 @@ AI-Driven School 2ヶ月目課題「面倒な報告を自動化するツール�
 | 処理 | 翌月曜〜日曜 × 子ども向け＝○ を抽出 → HTML生成 |
 | 届ける先 | 同じURLの印刷用ページ（GitHub Pages） |
 
+## 公開URL
+
+https://awayuki-ai.github.io/weekly-blackboard-schedule/
+
+- 毎週日曜 20:00（JST）に自動更新
+- リポジトリ: https://github.com/Awayuki-AI/weekly-blackboard-schedule
+
 ## いちばん短い使い方（今すぐ見る）
 
 ```bash
