@@ -3,137 +3,317 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>黒板予定ツールの4パーツ</title>
+  <title>面倒な報告を自動化する — 黒板予定ツールの流れ</title>
   <style>
     :root {
       --ink: #1c2b33;
       --muted: #5a6d78;
       --band: #0f5c6e;
+      --band-deep: #0a4452;
+      --mint: #e6f3f5;
       --paper: #f4fafb;
       --card: #ffffff;
       --line: #c5d4dc;
       --accent: #c45c26;
+      --ok: #1f7a4c;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, #d5eef2 0%, transparent 55%),
-        linear-gradient(180deg, #eaf5f7 0%, var(--paper) 100%);
+        radial-gradient(ellipse 90% 45% at 50% -8%, #d5eef2 0%, transparent 55%),
+        linear-gradient(180deg, #eaf5f7 0%, var(--paper) 45%, #fff 100%);
       min-height: 100vh;
-      padding: 2rem 1.25rem 3rem;
+      padding: 2rem 1.25rem 3.5rem;
     }
-    .wrap { max-width: 960px; margin: 0 auto; }
-    header { margin-bottom: 1.75rem; }
+
+    .wrap { max-width: 980px; margin: 0 auto; }
+
+    header {
+      margin-bottom: 2rem;
+      animation: rise 0.6s ease both;
+    }
+
     .badge {
       display: inline-block;
       color: var(--band);
       font-weight: 800;
-      letter-spacing: 0.06em;
-      font-size: 0.8rem;
-      margin-bottom: 0.4rem;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      margin-bottom: 0.45rem;
     }
+
     h1 {
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
-      line-height: 1.3;
-      margin-bottom: 0.5rem;
+      font-size: clamp(1.7rem, 4.2vw, 2.35rem);
+      line-height: 1.28;
+      margin-bottom: 0.55rem;
+      font-weight: 800;
     }
-    .lead { color: var(--muted); line-height: 1.7; max-width: 40rem; }
+
+    .lead {
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 42rem;
+      font-size: 1.02rem;
+    }
+
+    section {
+      margin-bottom: 1.75rem;
+      animation: rise 0.7s ease both;
+    }
+
+    section:nth-of-type(2) { animation-delay: 0.05s; }
+    section:nth-of-type(3) { animation-delay: 0.1s; }
+    section:nth-of-type(4) { animation-delay: 0.15s; }
+    section:nth-of-type(5) { animation-delay: 0.2s; }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--band);
+      margin-bottom: 0.7rem;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1.15rem 1.2rem;
+      min-height: 8.5rem;
+    }
+
+    .panel.before { border-top: 5px solid #9aa8b0; }
+    .panel.after { border-top: 5px solid var(--ok); }
+
+    .panel h2 {
+      font-size: 1.05rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .panel ul {
+      margin-left: 1.1rem;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+
     .flow {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0.75rem;
-      margin: 1.5rem 0;
+      gap: 0.7rem;
     }
+
     .part {
       background: var(--card);
       border: 1px solid var(--line);
       border-top: 5px solid var(--band);
-      padding: 1rem 0.9rem 1.1rem;
-      min-height: 11rem;
+      padding: 1rem 0.85rem 1.1rem;
+      min-height: 11.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
+    .part:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(15, 92, 110, 0.1);
+    }
+
     .part:nth-child(4) { border-top-color: var(--accent); }
+
     .num {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
       color: var(--band);
       letter-spacing: 0.08em;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.3rem;
     }
-    .part h2 {
-      font-size: 1.15rem;
-      margin-bottom: 0.55rem;
+
+    .part h3 {
+      font-size: 1.12rem;
+      margin-bottom: 0.5rem;
     }
+
     .part p {
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       line-height: 1.55;
       color: var(--muted);
     }
-    .part strong { color: var(--ink); font-weight: 700; }
-    .arrow-row {
-      display: none;
+
+    .part strong { color: var(--ink); }
+
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1rem 1.1rem;
     }
+
+    .chip {
+      background: var(--mint);
+      color: var(--band-deep);
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #b7d7de;
+    }
+
+    .arrow {
+      color: var(--band);
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
     .story {
       background: var(--card);
       border: 1px solid var(--line);
-      padding: 1.1rem 1.2rem;
-      line-height: 1.7;
+      border-left: 5px solid var(--accent);
+      padding: 1.15rem 1.25rem;
+      line-height: 1.75;
     }
+
     .story h3 {
       font-size: 1rem;
-      margin-bottom: 0.4rem;
       color: var(--band);
+      margin-bottom: 0.4rem;
     }
-    @media (max-width: 800px) {
+
+    .story p { color: var(--muted); }
+
+    .links {
+      margin-top: 0.85rem;
+      font-size: 0.92rem;
+    }
+
+    .links a {
+      color: var(--band-deep);
+      font-weight: 700;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
       .flow { grid-template-columns: 1fr 1fr; }
     }
-    @media (max-width: 520px) {
-      .flow { grid-template-columns: 1fr; }
+
+    @media (max-width: 560px) {
+      .compare, .flow { grid-template-columns: 1fr; }
+      .pipeline { flex-direction: column; align-items: stretch; }
+      .arrow { transform: rotate(90deg); align-self: center; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .part:hover { transform: none; box-shadow: none; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="badge">ADS 2ヶ月目課題</div>
-      <h1>面倒な報告を自動化する<br />黒板予定ツールの4パーツ</h1>
+      <div class="badge">ADS 2ヶ月目課題 · 図解</div>
+      <h1>面倒な報告を自動化する<br />黒板予定ツールの流れ</h1>
       <p class="lead">
-        毎週、年間予定から子ども向けだけを抜き出し、月曜に渡す表を作っていた作業を、
-        日曜夜に自動更新される印刷用ページへ置き換える。
+        毎週、年間予定から子ども向けだけを抜き出し、月曜に黒板へ書く表を渡していた作業を、
+        日曜夜の自動更新とメール通知に置き換えた。
       </p>
     </header>
 
-    <section class="flow" aria-label="4パーツ">
-      <article class="part">
-        <div class="num">01 TRIGGER</div>
-        <h2>トリガー</h2>
-        <p><strong>毎週日曜 20:00</strong><br />GitHub Actions が起動。朝6時出勤前に表ができている。</p>
-      </article>
-      <article class="part">
-        <div class="num">02 SOURCE</div>
-        <h2>ソース元</h2>
-        <p><strong>学校の年間予定CSV</strong><br />閲覧のみシートをダウンロードして配置。更新時は差し替え。</p>
-      </article>
-      <article class="part">
-        <div class="num">03 PROCESS</div>
-        <h2>処理</h2>
-        <p><strong>翌月曜〜日曜を抽出</strong><br />教員・保護者向けなどを除外し、印刷しやすいHTMLにする。</p>
-      </article>
-      <article class="part">
-        <div class="num">04 DELIVER</div>
-        <h2>届ける先</h2>
-        <p><strong>印刷ページ ＋ メール</strong><br />同じURLを更新し、Gmailへ「今週分のリンク」を送る。</p>
-      </article>
+    <section aria-label="Before after">
+      <div class="section-title">01 何が変わったか</div>
+      <div class="compare">
+        <article class="panel before">
+          <h2>以前（手作業）</h2>
+          <ul>
+            <li>校務の年間予定を目で追う</li>
+            <li>子どもに関係する行をピックアップ</li>
+            <li>表を作って月曜に渡す</li>
+          </ul>
+        </article>
+        <article class="panel after">
+          <h2>いま（自動化）</h2>
+          <ul>
+            <li>年間Excelを取り込む</li>
+            <li>日曜20時に今週分HTMLが更新</li>
+            <li>GmailにURLが届き、印刷するだけ</li>
+          </ul>
+        </article>
+      </div>
     </section>
 
-    <section class="story">
-      <h3>消えた面倒</h3>
-      <p>
-        以前: 掲示板の年間予定を目で追い → 子どもに関係する行をピックアップ → 表を作る → 月曜に渡す。<br />
-        いま: 学校の年間予定CSVを置いておけば、日曜夜にページが更新される。月曜朝は印刷するだけ。
-        （学校側の原本が変わったら、CSVをダウンロードし直して差し替える）
-      </p>
+    <section aria-label="Four parts">
+      <div class="section-title">02 自動化ツールの4パーツ</div>
+      <div class="flow">
+        <article class="part">
+          <div class="num">TRIGGER</div>
+          <h3>トリガー</h3>
+          <p><strong>毎週日曜 20:00</strong><br />GitHub Actions。朝6時出勤前に表ができている。</p>
+        </article>
+        <article class="part">
+          <div class="num">SOURCE</div>
+          <h3>ソース元</h3>
+          <p><strong>学校の年間予定Excel</strong><br />閲覧のみ原本はダウンロード。行事予定列だけ使う。</p>
+        </article>
+        <article class="part">
+          <div class="num">PROCESS</div>
+          <h3>処理</h3>
+          <p><strong>翌月曜〜日曜を抽出</strong><br />全月シートから該当週だけ抜き、印刷用HTMLにする。</p>
+        </article>
+        <article class="part">
+          <div class="num">DELIVER</div>
+          <h3>届ける先</h3>
+          <p><strong>Pages ＋ メール</strong><br />同じURLを更新し、Gmailへ「今週分のリンク」を送る。</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-label="Pipeline">
+      <div class="section-title">03 データの流れ</div>
+      <div class="pipeline" aria-label="技術パイプライン">
+        <span class="chip">学校Excel（年間）</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="chip">行事予定だけ抽出</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="chip">school-events.json</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="chip">印刷用HTML</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="chip">GitHub Pages</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="chip">Resend → Gmail</span>
+      </div>
+    </section>
+
+    <section aria-label="Story">
+      <div class="section-title">04 つくるときに決めたこと</div>
+      <div class="story">
+        <h3>校務サイト直結は諦めて、ダウンロード運用にした</h3>
+        <p>
+          掲示板はログイン必須で自動取得できなかった。
+          CSVは月ごと、Excelなら年間一括——なのでExcelを正とした。
+          日直名などが入る原本は公開せず、行事だけをjsonにして自動更新に乗せる。
+          2学期に学校Gmailが使えるようになったら、メール宛先だけ差し替える。
+        </p>
+        <p class="links">
+          公開ページ:
+          <a href="https://awayuki-ai.github.io/weekly-blackboard-schedule/" target="_blank" rel="noopener">
+            awayuki-ai.github.io/weekly-blackboard-schedule
+          </a>
+        </p>
+      </div>
     </section>
   </div>
 </body>
