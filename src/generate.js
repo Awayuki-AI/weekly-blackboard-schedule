@@ -80,51 +80,156 @@ function formatMd(ymd) {
   return `${Number(m)}/${Number(d)}`;
 }
 
-function parseCsv(text) {
-  const lines = text
-    .replace(/^\uFEFF/, "")
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0);
-  if (lines.length === 0) return [];
-
-  const headers = splitCsvLine(lines[0]);
-  return lines.slice(1).map((line) => {
-    const cols = splitCsvLine(line);
-    const row = {};
-    headers.forEach((h, i) => {
-      row[h.trim()] = (cols[i] ?? "").trim();
-    });
-    return row;
-  });
-}
-
-function splitCsvLine(line) {
-  const out = [];
+function parseCsvRecords(text) {
+  const rows = [];
+  let row = [];
   let cur = "";
   let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
+  const src = text.replace(/^\uFEFF/, "");
+
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
     if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
+      if (inQuotes && src[i + 1] === '"') {
         cur += '"';
         i++;
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (ch === "," && !inQuotes) {
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += ch;
+      continue;
     }
+    if (ch === "," && !inQuotes) {
+      row.push(cur);
+      cur = "";
+      continue;
+    }
+    if ((ch === "\n" || ch === "\r") && !inQuotes) {
+      if (ch === "\r" && src[i + 1] === "\n") i++;
+      row.push(cur);
+      cur = "";
+      if (row.some((c) => String(c).trim() !== "")) rows.push(row);
+      row = [];
+      continue;
+    }
+    cur += ch;
   }
-  out.push(cur);
-  return out;
+  row.push(cur);
+  if (row.some((c) => String(c).trim() !== "")) rows.push(row);
+  return rows;
+}
+
+function parseCsv(text) {
+  const records = parseCsvRecords(text);
+  if (records.length === 0) return [];
+  const headers = records[0].map((h) => h.trim());
+  return records.slice(1).map((cols) => {
+    const row = {};
+    headers.forEach((h, i) => {
+      row[h] = (cols[i] ?? "").trim();
+    });
+    return row;
+  });
 }
 
 function isChildFacing(value) {
   const v = String(value).trim();
   return v === "○" || v === "〇" || v.toLowerCase() === "o" || v === "1" || v.toLowerCase() === "true";
+}
+
+function detectYearMonth(text) {
+  // 令和8年度４月行事予定表 / 令和８年度4月
+  let m = text.match(/令和\s*([0-9０-９]+)年度\s*([0-9０-９]+)月/);
+  if (m) {
+    const reiwa = Number(toAsciiDigits(m[1]));
+    const month = Number(toAsciiDigits(m[2]));
+    return { year: 2018 + reiwa, month };
+  }
+  m = text.match(/(20\d{2})\s*年\s*([0-9０-９]+)月/);
+  if (m) {
+    return { year: Number(m[1]), month: Number(toAsciiDigits(m[2])) };
+  }
+  return null;
+}
+
+function toAsciiDigits(s) {
+  return String(s).replace(/[０-９]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) - 0xff10 + 0x30),
+  );
+}
+
+function cleanCell(s) {
+  return String(s || "")
+    .replace(/\r/g, "")
+    .replace(/\n+/g, "／")
+    .replace(/[ \t　]+/g, " ")
+    .replace(/／+/g, "／")
+    .trim();
+}
+
+/**
+ * 大島小などの「月行事予定表」CSV:
+ * 先頭にタイトル行、見出しに 日 / 曜 / 行事予定 / 諸会議等
+ * 「行事予定」列だけを黒板用に使う（諸会議等は使わない）
+ */
+function parseSchoolMonthlyCsv(text) {
+  const ym = detectYearMonth(text);
+  if (!ym) return null;
+
+  const records = parseCsvRecords(text);
+  let headerIdx = -1;
+  let headers = [];
+  for (let i = 0; i < Math.min(records.length, 15); i++) {
+    const cols = records[i].map((c) => c.trim());
+    if (cols.includes("日") && cols.includes("行事予定")) {
+      headerIdx = i;
+      headers = cols;
+      break;
+    }
+  }
+  if (headerIdx < 0) return null;
+
+  const dayIdx = headers.indexOf("日");
+  const eventIdx = headers.indexOf("行事予定");
+  const noteIdx = headers.indexOf("備考");
+
+  const rows = [];
+  for (let i = headerIdx + 1; i < records.length; i++) {
+    const cols = records[i];
+    const dayRaw = toAsciiDigits((cols[dayIdx] || "").trim());
+    if (!/^\d{1,2}$/.test(dayRaw)) continue;
+    const day = Number(dayRaw);
+    if (day < 1 || day > 31) continue;
+
+    const title = cleanCell(cols[eventIdx] || "");
+    if (!title) continue;
+
+    const ymd = `${ym.year}-${String(ym.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const [yy, mm, dd] = ymd.split("-").map(Number);
+    const check = new Date(Date.UTC(yy, mm - 1, dd, 3, 0, 0));
+    if (
+      check.getUTCFullYear() !== yy ||
+      check.getUTCMonth() + 1 !== mm ||
+      check.getUTCDate() !== dd
+    ) {
+      continue;
+    }
+
+    rows.push({
+      日付: ymd,
+      行事名: title,
+      対象: "",
+      メモ: cleanCell(cols[noteIdx] || ""),
+      子ども向け: "○",
+    });
+  }
+
+  return rows.length ? rows : null;
+}
+
+function rowsFromCsvText(text) {
+  const monthly = parseSchoolMonthlyCsv(text);
+  if (monthly) return monthly;
+  return parseCsv(text);
 }
 
 function normalizeDate(value) {
@@ -226,36 +331,56 @@ function isChildFacingEvent(event, opts) {
   return Boolean(event.title);
 }
 
-function resolveSchoolCsvPath() {
-  const primary = path.join(root, config.schoolCsvPath || "data/school-annual.csv");
-  if (fs.existsSync(primary)) return { path: primary, label: config.schoolCsvPath };
+function listSchoolCsvFiles() {
+  const dataDir = path.join(root, "data");
+  const primaryRel = config.schoolCsvPath || "data/school-annual.csv";
+  const primary = path.join(root, primaryRel);
 
-  const sampleRel = "data/school-annual.sample.csv";
-  const sample = path.join(root, sampleRel);
-  if (fs.existsSync(sample)) {
-    return { path: sample, label: `${sampleRel} (サンプル・本物のCSVを data/school-annual.csv に置いてください)` };
+  // メインファイルがあればそれだけ使う（差し替え運用）
+  if (fs.existsSync(primary)) {
+    return [{ abs: primary, rel: primaryRel }];
   }
 
-  throw new Error(
-    [
-      `学校の年間予定CSVが見つかりません: ${config.schoolCsvPath}`,
-      "学校のシートから CSV をダウンロードし、 data/school-annual.csv として保存してください。",
-    ].join("\n"),
-  );
+  const files = [];
+  for (const name of fs.readdirSync(dataDir)) {
+    if (!name.endsWith(".csv")) continue;
+    if (name.includes("sample")) continue;
+    if (name === "annual-schedule.sample.csv") continue;
+    if (name.includes("行事") || name.startsWith("school-")) {
+      files.push({ abs: path.join(dataDir, name), rel: `data/${name}` });
+    }
+  }
+
+  if (files.length === 0) {
+    const sampleRel = "data/school-annual.sample.csv";
+    const sample = path.join(root, sampleRel);
+    if (fs.existsSync(sample)) return [{ abs: sample, rel: `${sampleRel} (sample)` }];
+    throw new Error(
+      [
+        `学校の年間予定CSVが見つかりません: ${primaryRel}`,
+        "学校のシートから CSV をダウンロードし、 data/school-annual.csv に保存してください。",
+        "月ごとに複数ある場合は、中身をまとめるか、ファイル名に「行事」を含めて data/ に並べてください。",
+      ].join("\n"),
+    );
+  }
+  return files;
 }
 
-async function loadCsv(source) {
+async function loadEvents(source) {
   if (source === "local") {
     const p = path.join(root, config.localCsvPath);
-    return { text: fs.readFileSync(p, "utf8"), label: config.localCsvPath };
+    const text = fs.readFileSync(p, "utf8");
+    return { rows: rowsFromCsvText(text), label: config.localCsvPath };
   }
 
   if (source === "school") {
-    const resolved = resolveSchoolCsvPath();
-    return {
-      text: fs.readFileSync(resolved.path, "utf8"),
-      label: resolved.label,
-    };
+    const files = listSchoolCsvFiles();
+    const rows = [];
+    for (const f of files) {
+      const text = fs.readFileSync(f.abs, "utf8");
+      rows.push(...rowsFromCsvText(text));
+    }
+    return { rows, label: files.map((f) => f.rel).join(" + ") };
   }
 
   const url =
@@ -272,7 +397,10 @@ async function loadCsv(source) {
       ].join("\n"),
     );
   }
-  return { text, label: `Google Sheets (${config.spreadsheetId})` };
+  return {
+    rows: rowsFromCsvText(text),
+    label: `Google Sheets (${config.spreadsheetId})`,
+  };
 }
 
 function pickWeekEvents(rows, weekStart) {
@@ -505,19 +633,18 @@ async function main() {
 
   let loaded;
   try {
-    loaded = await loadCsv(source);
+    loaded = await loadEvents(source);
   } catch (err) {
     if (source !== "school" && source !== "local") {
       console.warn(String(err.message || err));
       console.warn("フォールバック: 学校CSV（またはサンプル）から生成します。");
-      loaded = await loadCsv("school");
+      loaded = await loadEvents("school");
     } else {
       throw err;
     }
   }
 
-  const rows = parseCsv(loaded.text);
-  const events = pickWeekEvents(rows, weekStart);
+  const events = pickWeekEvents(loaded.rows, weekStart);
   const generatedAt = new Intl.DateTimeFormat("ja-JP", {
     timeZone: config.timezone,
     dateStyle: "medium",

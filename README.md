@@ -22,11 +22,14 @@ https://awayuki-ai.github.io/weekly-blackboard-schedule/
 
 ## 学校CSVの置き方（メインの使い方）
 
-1. 校務の年間予定スプレッドシートを開く  
-2. **ファイル → ダウンロード → カンマ区切り形式（.csv）**  
-3. ダウンロードしたファイルを次の名前で保存する  
+校務の年間予定は **月ごとの行事予定表** 形式です（列: 日 / 曜 / 行事予定 / 諸会議等）。
 
-`weekly-blackboard-schedule/data/school-annual.csv`
+1. 学校のスプレッドシートを開く  
+2. **ファイル → ダウンロード → カンマ区切り形式（.csv）**  
+3. 次のどちらかで置く  
+
+- いちばん簡単: `data/school-annual.csv` という名前で保存（上書き差し替え）  
+- 月ごと: `data/` に「行事」を含む名前のまま置く（`school-annual.csv` が無いとき、それらを全部読みます）
 
 4. 生成する
 
@@ -35,25 +38,19 @@ cd weekly-blackboard-schedule
 npm run generate
 ```
 
-5. GitHubへ反映する（自動更新でも同じCSVを使う）
+5. GitHubへ反映する
 
 ```bash
-git add data/school-annual.csv
-git commit -m "Update school annual schedule CSV"
+git add data/
+git commit -m "Update school schedule CSV"
 git push
 ```
 
-学校側の予定が変わったら、同じ手順でCSVを差し替えて push してください（自動追従はしません）。
+### 読み方のポイント
 
-### 子ども向けの絞り込み
-
-学校CSVに「子ども向け」列がなくても動きます。
-
-- 行事名・備考に「職員会議」「校内研究会」などが含まれる → 除外  
-- 対象が「教員」「保護者」など → 除外  
-- それ以外（全校・○年の行事など）→ 黒板用に残す  
-
-キーワードは `config.json` の `excludeKeywords` / `excludeAudienceKeywords` で調整できます。
+- **行事予定** 列だけを黒板用に使う（**諸会議等** は使いません）  
+- タイトルの「令和8年度４月」から年月を判定し、日付列の「日」と組み合わせます  
+- 学校側が更新されたら、同じ手順でCSVを差し替えて push してください（自動追従はしません）
 
 ## いちばん短い確認（サンプル）
 
