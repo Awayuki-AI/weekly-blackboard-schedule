@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>面倒な報告を自動化する — 黒板予定ツールの流れ</title>
+  <title>教室の黒板予定を、日曜のメール1通にするまで</title>
   <style>
     :root {
       --ink: #243b55;
@@ -79,6 +79,7 @@
     section:nth-of-type(3) { animation-delay: 0.1s; }
     section:nth-of-type(4) { animation-delay: 0.15s; }
     section:nth-of-type(5) { animation-delay: 0.2s; }
+    section:nth-of-type(6) { animation-delay: 0.25s; }
 
     .section-title {
       font-size: 0.8rem;
@@ -202,6 +203,51 @@
       font-size: 1.1rem;
     }
 
+    .steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+    }
+
+    .step {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1rem 1.05rem 1.05rem;
+      box-shadow: 0 6px 18px rgba(74, 163, 212, 0.07);
+    }
+
+    .step .turn {
+      display: inline-block;
+      background: var(--sky-soft);
+      color: #1f5f8a;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 0.12rem 0.45rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .step:nth-child(even) .turn {
+      background: var(--lemon-soft);
+      color: #7a6a10;
+    }
+
+    .step h3 {
+      font-size: 1.02rem;
+      color: #1f5f8a;
+      margin-bottom: 0.35rem;
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    @media (max-width: 700px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+
     .shot-section .section-title {
       margin-bottom: 0.5rem;
     }
@@ -289,38 +335,64 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="badge">ADS 2ヶ月目課題 · 図解</div>
-      <h1>面倒な報告を自動化する<br />黒板予定ツールの流れ</h1>
+      <div class="badge">卒業制作 · 対話の記録</div>
+      <h1>教室の黒板予定を、<br />日曜のメール1通にするまで</h1>
       <p class="lead">
-        毎週、年間予定から子ども向けだけを抜き出し、月曜に黒板へ書く表を渡していた作業を、
-        日曜夜の自動更新とメール通知に置き換えた。
+        小学校の教室横に、1週間の予定を書く黒板がある。月曜に紙を係の児童へ渡すのが地味に面倒で、よく忘れる。
+        私だけの、私が便利になるツールとして作った。
       </p>
     </header>
 
+    <section aria-label="Conversation decisions">
+      <div class="section-title">01 このやりとりで決めたこと</div>
+      <div class="steps">
+        <article class="step">
+          <span class="turn">分岐 1</span>
+          <h3>掲示板直結はできない</h3>
+          <p>校務の掲示板はログイン必須だった。自動取得は権限の壁で折れるので、学校の原本をダウンロードする運用にした。</p>
+        </article>
+        <article class="step">
+          <span class="turn">分岐 2</span>
+          <h3>CSVではなく年間Excel</h3>
+          <p>CSVは月ごと。Excelなら年間まとめて取れる。行事予定の列だけ使い、日直名は公開しない。</p>
+        </article>
+        <article class="step">
+          <span class="turn">分岐 3</span>
+          <h3>日曜20時に同じURLを更新</h3>
+          <p>朝6時出勤なので、月曜朝には表ができている必要がある。届ける先は印刷ページ。あとからメールも足した。</p>
+        </article>
+        <article class="step">
+          <span class="turn">分岐 4</span>
+          <h3>学校メールへ届ける</h3>
+          <p>最初は個人メール。2学期から学校メールへ。一度は弾かれたが、学校アドレスで送り直し、迷惑メールから受信箱へ移した。</p>
+        </article>
+      </div>
+    </section>
+
     <section aria-label="Before after">
-      <div class="section-title">01 何が変わったか</div>
+      <div class="section-title">02 何が変わったか</div>
       <div class="compare">
         <article class="panel before">
           <h2>以前（手作業）</h2>
           <ul>
-            <li>校務の年間予定を目で追う</li>
-            <li>子どもに関係する行をピックアップ</li>
-            <li>表を作って月曜に渡す</li>
+            <li>年間予定を目で追う</li>
+            <li>子ども向けだけ紙にまとめる</li>
+            <li>月曜に係へ渡す。よく忘れる</li>
           </ul>
         </article>
         <article class="panel after">
           <h2>いま（自動化）</h2>
           <ul>
             <li>年間Excelを取り込む</li>
-            <li>日曜20時に今週分HTMLが更新</li>
-            <li>GmailにURLが届き、印刷するだけ</li>
+            <li>日曜20時に今週分が更新される</li>
+            <li>学校メールが届き、印刷して渡す</li>
           </ul>
         </article>
       </div>
     </section>
 
     <section aria-label="Four parts">
-      <div class="section-title">02 自動化ツールの4パーツ</div>
+      <div class="section-title">03 自動化ツールの4パーツ</div>
       <div class="flow">
         <article class="part">
           <div class="num">TRIGGER</div>
@@ -340,13 +412,13 @@
         <article class="part">
           <div class="num">DELIVER</div>
           <h3>届ける先</h3>
-          <p><strong>Pages ＋ メール</strong><br />同じURLを更新し、Gmailへ「今週分のリンク」を送る。</p>
+          <p><strong>Pages ＋ メール</strong><br />同じURLを更新し、学校メールへ今週分のリンクを送る。</p>
         </article>
       </div>
     </section>
 
     <section aria-label="Pipeline">
-      <div class="section-title">03 データの流れ</div>
+      <div class="section-title">04 データの流れ</div>
       <div class="pipeline" aria-label="技術パイプライン">
         <span class="chip">学校Excel（年間）</span>
         <span class="arrow" aria-hidden="true">→</span>
@@ -358,12 +430,12 @@
         <span class="arrow" aria-hidden="true">→</span>
         <span class="chip">GitHub Pages</span>
         <span class="arrow" aria-hidden="true">→</span>
-        <span class="chip">Resend → Gmail</span>
+        <span class="chip">Resend → 学校メール</span>
       </div>
     </section>
 
     <section class="shot-section" aria-label="Tool screenshot">
-      <div class="section-title">04 完成した報告ツールの画面</div>
+      <div class="section-title">05 完成した報告ツールの画面</div>
       <div class="shot-wrap">
         <img
           src="assets/tool-screenshot.png"
@@ -378,14 +450,13 @@
     </section>
 
     <section aria-label="Story">
-      <div class="section-title">05 つくるときに決めたこと</div>
+      <div class="section-title">06 いまも毎週使っている</div>
       <div class="story">
-        <h3>校務サイト直結は諦めて、ダウンロード運用にした</h3>
+        <h3>完璧な連携より、月曜に忘れないこと</h3>
         <p>
-          掲示板はログイン必須で自動取得できなかった。
-          CSVは月ごと、Excelなら年間一括——なのでExcelを正とした。
-          日直名などが入る原本は公開せず、行事だけをjsonにして自動更新に乗せる。
-          2学期に学校Gmailが使えるようになったら、メール宛先だけ差し替える。
+          掲示板直結も、学校の原本を毎回自動で取りに行くことも、やらなかった。
+          できるところだけ自動化して、紙を渡す瞬間だけ人手に残した。
+          日曜のメールが届けば、月曜朝に思い出さなくてよい。
         </p>
         <p class="links">
           公開ページ:
