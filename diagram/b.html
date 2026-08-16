@@ -34,17 +34,7 @@
       padding: 1.2rem 0.8rem 2.4rem;
     }
 
-    .switch {
-      text-align: center;
-      margin-bottom: 0.85rem;
-      font-size: 0.82rem;
-      color: #cbb79a;
-    }
-
-    .switch a { color: #e8d7b5; font-weight: 600; }
-    .switch .here { color: var(--yellow); }
-
-    .room { max-width: 980px; margin: 0 auto; }
+    .room { max-width: 1240px; margin: 0 auto; }
 
     .board {
       position: relative;
@@ -162,7 +152,6 @@
 
     .before, .after {
       width: max-content;
-      max-width: 18em;
       text-align: left;
     }
 
@@ -173,6 +162,10 @@
       list-style: none;
       line-height: 1.75;
       font-size: var(--body);
+    }
+
+    .compare ul li {
+      white-space: nowrap;
     }
 
     .chalk-arrow {
@@ -193,7 +186,6 @@
     .note {
       line-height: 1.65;
       width: max-content;
-      max-width: 22em;
       text-align: left;
     }
 
@@ -202,11 +194,13 @@
       font-size: 18pt;
       font-weight: 600;
       color: var(--chalk);
+      white-space: nowrap;
     }
 
     .note span {
       color: var(--sky);
       font-size: var(--body);
+      white-space: nowrap;
     }
 
     .num {
@@ -218,9 +212,11 @@
 
     .flow {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.6rem;
+      grid-template-columns: max-content max-content;
+      gap: 1.1rem 2.6rem;
       align-items: start;
+      justify-content: center;
+      justify-items: center;
     }
 
     .part {
@@ -260,6 +256,7 @@
       font-size: var(--body);
       line-height: 1.55;
       color: var(--chalk-dim);
+      white-space: nowrap;
     }
 
     .paper-wrap {
@@ -349,11 +346,10 @@
 
     @media (max-width: 760px) {
       .board { border-width: 10px; padding: 1.15rem 0.9rem 1.3rem; }
-      .compare, .notes { grid-template-columns: max-content; }
-      .flow { grid-template-columns: 1fr; }
+      .compare, .notes, .flow { grid-template-columns: max-content; }
       .chalk-arrow { transform: rotate(90deg); justify-self: center; }
       .compare, .notes { gap: 0.7rem; }
-      .note { max-width: 18em; }
+      .compare ul li, .note span, .note strong, .part p { white-space: normal; }
     }
 
     @media print {
@@ -363,12 +359,6 @@
   </style>
 </head>
 <body>
-  <p class="switch">
-    <a href="index.html">案A タイムライン</a>
-    ·
-    <span class="here">案B 黒板</span>
-  </p>
-
   <div class="room">
     <div class="board">
       <span class="smudge a" aria-hidden="true"></span>
