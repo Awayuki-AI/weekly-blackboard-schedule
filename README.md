@@ -1,93 +1,48 @@
-# 今週の予定（黒板用）自動生成ツール
+# 今週の予定（黒板用）
 
-学校の年間予定CSVから、子ども向けの予定だけを抜き出し、月曜に渡す印刷用HTMLを自動更新します。
+教室の横に、1週間のスケジュールが書き込める黒板があります。毎週月曜日に、1週間の予定をピックアップした紙を係の児童に渡して、黒板に書いてもらっています。これが地味に面倒で、よく忘れてしまいます。
 
-AI-Driven School 2ヶ月目課題「面倒な報告を自動化するツール」用。
+1週間の予定の紙を、できるだけ楽に自動で用意する方法はないか考えて作りました。**私だけの、私が便利になるツール**です。
+
+日曜の夜に今週分が更新され、印刷用のページがメールで届きます。月曜朝は、その紙を子どもに渡すだけです。
+
+## 動いているもの
+
+- 印刷ページ: https://awayuki-ai.github.io/weekly-blackboard-schedule/
+- 仕組みの図解: https://weekly-blackboard-diagram.vercel.app
+- リポジトリ: https://github.com/Awayuki-AI/weekly-blackboard-schedule
 
 ## 4つのパーツ
 
-| パーツ | このツールでの中身 |
-|--------|-------------------|
-| トリガー | 毎週日曜 20:00（GitHub Actions）／手動実行も可 |
-| ソース元 | 学校の年間予定Excel（またはそこから書き出したJSON） |
-| 処理 | 全月の「行事予定」列から翌月曜〜日曜を抽出 → HTML生成 |
-| 届ける先 | GitHub Pagesの印刷用URL ＋ 更新通知メール（Resend → Gmail） |
+| パーツ | 中身 |
+|--------|------|
+| トリガー | 毎週日曜 20:00（GitHub Actions） |
+| ソース元 | 学校の年間予定Excel（行事予定の列） |
+| 処理 | 翌月曜〜日曜を抜き出し、印刷用HTMLにする |
+| 届ける先 | GitHub Pages の同じURL ＋ メール通知 |
 
-## 公開URL
+校務の掲示板はログイン必須だったので、掲示板直結はしませんでした。閲覧のみの年間Excelをダウンロードし、子ども向けの行だけ使います。原本には日直名などが入るので、公開するのは行事だけです。
 
-https://awayuki-ai.github.io/weekly-blackboard-schedule/
+## 使い方（教員としての運用）
 
-- 毎週日曜 20:00（JST）に自動更新
-- 更新後、設定したGmailへURLをメール送信
-- リポジトリ: https://github.com/Awayuki-AI/weekly-blackboard-schedule
+1. 学校の年間予定を Excel でダウンロードする（変わるたびに差し替え）
+2. このリポジトリの `data/school-annual.xlsx` に置く
+3. `npm run import:xlsx` で公開用データにする
+4. GitHub に push する
+5. 日曜 20:00 にページが更新され、メールが届く
+6. 月曜に印刷して、係の児童に渡す
 
-## メール通知の設定（Resend → Gmail）
-
-日曜の自動更新後（または手動 Run workflow 後）に、公開URLをメールで送ります。
-
-1. [Resend](https://resend.com/) でアカウント作成（個人GmailでOK）  
-2. API Keys → キーを作成してコピー  
-3. リポジトリの Settings → Secrets and variables → Actions に追加:
-
-| Secret名 | 内容 |
-|----------|------|
-| `RESEND_API_KEY` | Resend の API キー |
-| `MAIL_TO` | 受け取り先（いまは個人Gmail。2学期に学校Gmailへ変更） |
-| `MAIL_FROM` | 任意。未設定なら `onboarding@resend.dev`（Resendのテスト用差出人） |
-
-4. Actions → `Weekly blackboard schedule` → Run workflow でテスト
-
-補足: テスト用差出人 `onboarding@resend.dev` は、Resendに登録したメールアドレス宛にしか送れない制限があることがあります。届かないときは Resend のダッシュボードで宛先制限を確認してください。学校ドメインを使う場合は、あとでドメイン認証して `MAIL_FROM` を差し替えます。
-
-## 学校Excelの置き方（おすすめ）
-
-CSVは月ごとですが、**Excelなら年間まとめて**ダウンロードできます。
-
-1. 学校の年間予定を Excel（.xlsx）でダウンロード  
-2. `data/school-annual.xlsx` として保存  
-3. 公開用データに変換（日直名などを除く）
+## 技術メモ
 
 ```bash
 npm install
 npm run import:xlsx
-```
-
-4. 今週分を生成
-
-```bash
 npm run generate
 ```
 
-5. GitHubへ反映（**xlsxは上げない**。jsonだけ上げる）
+- 自動更新: `.github/workflows/weekly.yml`（日曜 20:00 JST）
+- メール: Resend。宛先は GitHub Secrets の `MAIL_TO`
+- Excelは git に上げない（`.gitignore`）。Actions は `data/school-events.json` を読む
+- 特定の週を見る: `node src/generate.js --source=school --week-start=2026-08-25`
 
-```bash
-git add data/school-events.json public/index.html
-git commit -m "Update school schedule from annual Excel"
-git push
-```
-
-優先順位: `school-annual.xlsx` → `school-events.json` → CSV
-
-`school-annual.xlsx` は日直名などが入るため `.gitignore` 済みです。自動更新（GitHub Actions）は `school-events.json` を読みます。
-
-### CSVでも可（月ごと）
-
-月ごとのCSVしかない場合は、従来どおり `data/school-annual.csv` や「行事」付きファイル名でも動きます。
-
-## いちばん短い確認（サンプル）
-
-```bash
-npm run generate:sample
-```
-
-`data/school-annual.csv` がまだ無いときは、同梱の `data/school-annual.sample.csv` を使います。
-
-## 週の決まり方
-
-- **日曜に実行** → 翌日（月曜）からの1週間  
-- **月〜土に実行** → その週の月曜からの1週間  
-- 特定週を指定: `node src/generate.js --source=school --week-start=2026-09-07`
-
-## 図解
-
-発表用の4パーツ図解: `diagram/index.html`
+AI-Driven School 2ヶ月目課題「面倒な報告を自動化するツール」から始まり、いまも毎週使っています。
