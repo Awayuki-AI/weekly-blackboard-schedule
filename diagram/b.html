@@ -19,6 +19,7 @@
       --wood: #7a4a28;
       --wood-dark: #4e2d16;
       --tape: #e6d3a3;
+      --pink: #ffb7c8;
       --body: 16pt;
     }
 
@@ -120,11 +121,28 @@
     section { position: relative; z-index: 1; margin-bottom: 1.55rem; }
 
     .label {
-      font-size: 0.78rem;
-      letter-spacing: 0.16em;
-      color: var(--sky);
-      margin-bottom: 0.55rem;
+      display: table;
+      margin: 0 auto 0.85rem;
+      font-family: "Yusei Magic", "Klee One", sans-serif;
+      font-size: var(--body);
+      letter-spacing: 0.12em;
+      color: var(--pink);
+      padding: 0.28em 0.9em 0.22em;
+      border: 2px solid var(--pink);
+      border-radius: 40% 28% 45% 32% / 35% 48% 30% 42%;
+      transform: rotate(-1.1deg);
       text-align: center;
+      box-shadow: 0 0 0 1px rgba(255, 183, 200, 0.25);
+    }
+
+    section:nth-of-type(3) .label {
+      transform: rotate(1.3deg);
+      border-radius: 32% 48% 28% 40% / 45% 30% 48% 35%;
+    }
+
+    section:nth-of-type(4) .label {
+      transform: rotate(-0.5deg);
+      border-radius: 38% 30% 42% 36% / 40% 44% 32% 38%;
     }
 
     .compare {
