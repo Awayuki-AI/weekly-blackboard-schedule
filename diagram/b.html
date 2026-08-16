@@ -19,6 +19,7 @@
       --wood: #7a4a28;
       --wood-dark: #4e2d16;
       --tape: #e6d3a3;
+      --body: 16pt;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -112,7 +113,7 @@
       max-width: 38rem;
       margin: 0 auto;
       line-height: 1.85;
-      font-size: 1.02rem;
+      font-size: var(--body);
       color: var(--chalk);
     }
 
@@ -135,7 +136,7 @@
 
     .era-title {
       font-family: "Yusei Magic", sans-serif;
-      font-size: 1.05rem;
+      font-size: 18pt;
       margin-bottom: 0.35rem;
     }
 
@@ -145,7 +146,7 @@
     .compare ul {
       list-style: none;
       line-height: 1.75;
-      font-size: 0.95rem;
+      font-size: var(--body);
     }
 
     .chalk-arrow {
@@ -167,14 +168,14 @@
 
     .note strong {
       display: block;
-      font-size: 1.02rem;
+      font-size: 18pt;
       font-weight: 600;
       color: var(--chalk);
     }
 
     .note span {
       color: var(--sky);
-      font-size: 0.92rem;
+      font-size: var(--body);
     }
 
     .num {
@@ -218,14 +219,14 @@
     .part:nth-child(4) .bubble { border-color: var(--yellow); transform: rotate(3deg); }
 
     .part h3 {
-      font-size: 1.05rem;
+      font-size: 18pt;
       font-weight: 600;
       margin-bottom: 0.25rem;
       color: var(--chalk);
     }
 
     .part p {
-      font-size: 0.86rem;
+      font-size: var(--body);
       line-height: 1.55;
       color: var(--chalk-dim);
     }
@@ -262,7 +263,7 @@
     .shot-caption {
       margin-top: 0.7rem;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: var(--body);
       color: var(--chalk-dim);
       line-height: 1.6;
       transform: rotate(0.4deg);
@@ -273,7 +274,7 @@
       max-width: 34rem;
       margin: 0.4rem auto 0;
       line-height: 1.85;
-      font-size: 1rem;
+      font-size: var(--body);
     }
 
     .close strong {
@@ -281,11 +282,11 @@
       margin-top: 0.45rem;
       color: var(--yellow);
       font-family: "Yusei Magic", sans-serif;
-      font-size: 1.15rem;
+      font-size: 20pt;
       font-weight: 400;
     }
 
-    .links { display: block; margin-top: 0.7rem; font-size: 0.9rem; }
+    .links { display: block; margin-top: 0.7rem; font-size: var(--body); }
     .links a { color: var(--sky); }
 
     .tray {
