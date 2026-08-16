@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>教室の黒板予定を、日曜のメール1通にするまで（黒板）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Yusei+Magic&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --board: #1f4d36;
+      --board-deep: #163828;
+      --chalk: #f4f0e1;
+      --chalk-dim: #c9d4c4;
+      --yellow: #ffe566;
+      --sky: #a8dff5;
+      --mint: #b8ebb8;
+      --wood: #7a4a28;
+      --wood-dark: #4e2d16;
+      --tape: #e6d3a3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Klee One", "Yu Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+      color: var(--chalk);
+      background:
+        radial-gradient(ellipse at 50% 0%, #3a2a1c 0%, #1a120c 70%);
+      min-height: 100vh;
+      padding: 1.2rem 0.8rem 2.4rem;
+    }
+
+    .switch {
+      text-align: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.82rem;
+      color: #cbb79a;
+    }
+
+    .switch a { color: #e8d7b5; font-weight: 600; }
+    .switch .here { color: var(--yellow); }
+
+    .room { max-width: 980px; margin: 0 auto; }
+
+    .board {
+      position: relative;
+      background:
+        radial-gradient(ellipse at 18% 12%, rgba(255, 255, 255, 0.05), transparent 42%),
+        radial-gradient(ellipse at 82% 88%, rgba(0, 0, 0, 0.22), transparent 48%),
+        repeating-linear-gradient(
+          180deg,
+          transparent 0 7px,
+          rgba(255, 255, 255, 0.012) 7px 8px
+        ),
+        linear-gradient(180deg, #256344 0%, var(--board) 38%, var(--board-deep) 100%);
+      border: 16px solid var(--wood);
+      outline: 6px solid var(--wood-dark);
+      box-shadow:
+        inset 0 0 90px rgba(0, 0, 0, 0.38),
+        0 18px 40px rgba(0, 0, 0, 0.45);
+      padding: 1.6rem 1.4rem 1.8rem;
+      overflow: hidden;
+    }
+
+    .board::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(244, 240, 225, 0.04), transparent 28%),
+        radial-gradient(circle at 70% 20%, rgba(244, 240, 225, 0.03), transparent 22%);
+      mix-blend-mode: screen;
+    }
+
+    .smudge {
+      position: absolute;
+      width: 140px;
+      height: 50px;
+      background: rgba(244, 240, 225, 0.05);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .smudge.a { top: 18%; left: 8%; transform: rotate(-8deg); }
+    .smudge.b { top: 58%; right: 10%; width: 180px; }
+
+    header { position: relative; z-index: 1; text-align: center; margin-bottom: 1.5rem; }
+
+    .badge {
+      display: inline-block;
+      color: var(--yellow);
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    h1 {
+      font-family: "Yusei Magic", "Klee One", sans-serif;
+      font-size: clamp(1.55rem, 4vw, 2.25rem);
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--yellow);
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+      margin-bottom: 0.7rem;
+    }
+
+    .lead {
+      max-width: 38rem;
+      margin: 0 auto;
+      line-height: 1.85;
+      font-size: 1.02rem;
+      color: var(--chalk);
+    }
+
+    section { position: relative; z-index: 1; margin-bottom: 1.55rem; }
+
+    .label {
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      color: var(--sky);
+      margin-bottom: 0.55rem;
+      text-align: center;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.6rem 0.8rem;
+      align-items: center;
+    }
+
+    .era-title {
+      font-family: "Yusei Magic", sans-serif;
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .before { color: var(--chalk-dim); opacity: 0.72; }
+    .after { color: var(--mint); }
+
+    .compare ul {
+      list-style: none;
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+
+    .chalk-arrow {
+      font-family: "Yusei Magic", sans-serif;
+      font-size: 1.6rem;
+      color: var(--yellow);
+      transform: rotate(-6deg);
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem 1.4rem;
+    }
+
+    .note {
+      line-height: 1.65;
+    }
+
+    .note strong {
+      display: block;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--chalk);
+    }
+
+    .note span {
+      color: var(--sky);
+      font-size: 0.92rem;
+    }
+
+    .num {
+      display: inline-block;
+      width: 1.4rem;
+      color: var(--yellow);
+      font-family: "Yusei Magic", sans-serif;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
+      align-items: start;
+    }
+
+    .part {
+      text-align: center;
+      padding: 0.2rem 0.3rem;
+    }
+
+    .bubble {
+      min-width: 5.6rem;
+      height: auto;
+      padding: 0.35rem 0.5rem;
+      margin: 0 auto 0.55rem;
+      border: 2px solid var(--chalk);
+      border-radius: 40% 48% 42% 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Yusei Magic", sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--yellow);
+      transform: rotate(-3deg);
+    }
+
+    .part:nth-child(2) .bubble { border-color: var(--sky); color: var(--sky); transform: rotate(4deg); }
+    .part:nth-child(3) .bubble { border-color: var(--mint); color: var(--mint); transform: rotate(-2deg); }
+    .part:nth-child(4) .bubble { border-color: var(--yellow); transform: rotate(3deg); }
+
+    .part h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--chalk);
+    }
+
+    .part p {
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--chalk-dim);
+    }
+
+    .paper-wrap {
+      position: relative;
+      max-width: 760px;
+      margin: 0.4rem auto 0;
+      transform: rotate(-0.7deg);
+    }
+
+    .tape {
+      position: absolute;
+      width: 72px;
+      height: 22px;
+      background: linear-gradient(180deg, #efe0b8, var(--tape));
+      opacity: 0.82;
+      z-index: 2;
+    }
+
+    .tape.tl { top: -8px; left: 18px; transform: rotate(-12deg); }
+    .tape.tr { top: -6px; right: 28px; transform: rotate(9deg); }
+
+    .paper-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border: 8px solid #f7f1e4;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      object-fit: contain;
+    }
+
+    .shot-caption {
+      margin-top: 0.7rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--chalk-dim);
+      line-height: 1.6;
+      transform: rotate(0.4deg);
+    }
+
+    .close {
+      text-align: center;
+      max-width: 34rem;
+      margin: 0.4rem auto 0;
+      line-height: 1.85;
+      font-size: 1rem;
+    }
+
+    .close strong {
+      display: block;
+      margin-top: 0.45rem;
+      color: var(--yellow);
+      font-family: "Yusei Magic", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 400;
+    }
+
+    .links { display: block; margin-top: 0.7rem; font-size: 0.9rem; }
+    .links a { color: var(--sky); }
+
+    .tray {
+      height: 22px;
+      background: linear-gradient(180deg, #8a5630, var(--wood-dark));
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 0 1.2rem 4px;
+    }
+
+    .stick {
+      width: 42px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .stick.w { background: #f4f0e1; }
+    .stick.y { background: #ffe566; }
+    .stick.b { background: #a8dff5; }
+    .eraser {
+      width: 48px;
+      height: 12px;
+      background: #7a8b7a;
+      border-radius: 2px;
+      margin-left: auto;
+    }
+
+    @media (max-width: 760px) {
+      .board { border-width: 10px; padding: 1.15rem 0.9rem 1.3rem; }
+      .compare, .notes, .flow { grid-template-columns: 1fr; }
+      .chalk-arrow { transform: rotate(90deg); justify-self: center; }
+      .compare { gap: 0.5rem; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .board { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <p class="switch">
+    <a href="index.html">案A タイムライン</a>
+    ·
+    <span class="here">案B 黒板</span>
+  </p>
+
+  <div class="room">
+    <div class="board">
+      <span class="smudge a" aria-hidden="true"></span>
+      <span class="smudge b" aria-hidden="true"></span>
+
+      <header>
+        <div class="badge">卒業制作 · 対話の記録</div>
+        <h1>教室の黒板予定を、<br />日曜のメール1通にするまで</h1>
+        <p class="lead">
+          小学校の教室横に、1週間の予定を書く黒板がある。月曜に紙を係の児童へ渡すのが地味に面倒で、よく忘れる。
+          私だけの、私が便利になるツールとして作った。
+        </p>
+      </header>
+
+      <section aria-label="以前といま">
+        <div class="compare">
+          <div class="before">
+            <p class="era-title">以前 · 手作業</p>
+            <ul>
+              <li>年間予定を目で追う</li>
+              <li>子ども向けだけ紙にまとめる</li>
+              <li>月曜に係へ渡す。よく忘れる</li>
+            </ul>
+          </div>
+          <div class="chalk-arrow" aria-hidden="true">→</div>
+          <div class="after">
+            <p class="era-title">いま · 自動化</p>
+            <ul>
+              <li>年間Excelを取り込む</li>
+              <li>日曜20時に今週分が更新される</li>
+              <li>学校メールが届き、印刷して渡す</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="やりとりの決めごと">
+        <p class="label">決めごと</p>
+        <div class="notes">
+          <p class="note"><strong><span class="num">1</span>掲示板はログイン必須</strong><span>直結しない。原本を手元に置く。</span></p>
+          <p class="note"><strong><span class="num">2</span>CSVは月ごと</strong><span>年間Excelを正とする。行事予定列だけ。日直名は出さない。</span></p>
+          <p class="note"><strong><span class="num">3</span>朝6時出勤</strong><span>日曜20:00に、同じURLを更新する。</span></p>
+          <p class="note"><strong><span class="num">4</span>学校メールへ</strong><span>最初は迷惑メール。解除して、届くようにした。</span></p>
+        </div>
+      </section>
+
+      <section aria-label="自動化の4パーツ">
+        <p class="label">動かす</p>
+        <div class="flow">
+          <article class="part">
+            <div class="bubble">TRIGGER</div>
+            <h3>トリガー</h3>
+            <p>毎週日曜 20:00。GitHub Actions。</p>
+          </article>
+          <article class="part">
+            <div class="bubble">SOURCE</div>
+            <h3>ソース</h3>
+            <p>学校の年間予定Excel。行事予定の列だけ。</p>
+          </article>
+          <article class="part">
+            <div class="bubble">PROCESS</div>
+            <h3>処理</h3>
+            <p>翌月曜〜日曜を抜き、印刷用HTMLに。</p>
+          </article>
+          <article class="part">
+            <div class="bubble">DELIVER</div>
+            <h3>届ける先</h3>
+            <p>同じURLを更新し、学校メールへ。</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-label="完成した報告ツールの画面">
+        <p class="label">到着。月曜に渡す表</p>
+        <div class="paper-wrap">
+          <span class="tape tl" aria-hidden="true"></span>
+          <span class="tape tr" aria-hidden="true"></span>
+          <img
+            src="assets/tool-screenshot.png"
+            alt="今週の予定（黒板用）の印刷画面。8月25日週の始業式などが並んでいる"
+            width="1200"
+            height="900"
+          />
+        </div>
+        <p class="shot-caption">
+          公開ページの例（2学期始めの週）。月曜に印刷して子どもへ渡し、黒板へ書いてもらう。
+        </p>
+      </section>
+
+      <p class="close">
+        掲示板直結も、原本を毎回自動で取りに行くことも、やらなかった。
+        できるところだけ自動化して、紙を渡す瞬間だけ人手に残した。
+        <strong>完璧な連携より、月曜に忘れないこと。</strong>
+        <span class="links">
+          公開ページ:
+          <a href="https://awayuki-ai.github.io/weekly-blackboard-schedule/" target="_blank" rel="noopener">
+            awayuki-ai.github.io/weekly-blackboard-schedule
+          </a>
+        </span>
+      </p>
+    </div>
+    <div class="tray" aria-hidden="true">
+      <span class="stick w"></span>
+      <span class="stick y"></span>
+      <span class="stick b"></span>
+      <span class="eraser"></span>
+    </div>
+  </div>
+</body>
+</html>
