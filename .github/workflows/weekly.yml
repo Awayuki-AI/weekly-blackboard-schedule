@@ -39,6 +39,12 @@ jobs:
       - name: Generate weekly HTML
         run: node src/generate.js --source=school
 
+      - name: Install Chromium for PDF
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate PDF
+        run: node src/html-to-pdf.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -51,10 +57,9 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Email the public URL
+      - name: Email the weekly PDF
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
-          PAGE_URL: ${{ steps.deployment.outputs.page_url || 'https://awayuki-ai.github.io/weekly-blackboard-schedule/' }}
         run: node src/send-mail.js

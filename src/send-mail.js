@@ -1,16 +1,20 @@
 /**
- * Resend で公開URLをメール送信する。
+ * Resend で今週分の予定PDFをメール添付する。
  *
  * 必要な環境変数:
- *   RESEND_API_KEY  … Resend の API キー
- *   MAIL_TO         … 宛先（個人Gmail → あとで学校Gmailに差し替え可）
- *   MAIL_FROM       … 任意。未設定時は onboarding@resend.dev
- *   PAGE_URL        … 任意。未設定時は公開URLのデフォルト
- *   WEEK_LABEL      … 任意。件名用（例: 8/25〜8/31）
+ *   RESEND_API_KEY
+ *   MAIL_TO
+ *   MAIL_FROM     任意。未設定時は onboarding@resend.dev
+ *   WEEK_LABEL    任意。件名用
+ *   PDF_PATH      任意。未設定時は public/weekly-schedule.pdf
  */
 
-const DEFAULT_PAGE_URL =
-  "https://awayuki-ai.github.io/weekly-blackboard-schedule/";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, "..");
 
 function required(name) {
   const v = process.env[name];
@@ -24,8 +28,9 @@ async function main() {
   const apiKey = required("RESEND_API_KEY");
   const to = required("MAIL_TO");
   const from = required("MAIL_FROM") || "黒板予定 <onboarding@resend.dev>";
-  const pageUrl = required("PAGE_URL") || DEFAULT_PAGE_URL;
   const weekLabel = required("WEEK_LABEL") || "";
+  const pdfPath =
+    required("PDF_PATH") || path.join(root, "public", "weekly-schedule.pdf");
 
   if (!apiKey || !to) {
     console.log(
@@ -34,25 +39,27 @@ async function main() {
     return;
   }
 
+  if (!fs.existsSync(pdfPath)) {
+    console.error(`PDFがありません: ${pdfPath}\n先に node src/html-to-pdf.js を実行してください。`);
+    process.exit(1);
+  }
+
+  const pdfBase64 = fs.readFileSync(pdfPath).toString("base64");
   const subject = weekLabel
-    ? `【黒板予定】今週分が更新されました（${weekLabel}）`
-    : "【黒板予定】今週分が更新されました";
+    ? `【黒板予定】今週分（${weekLabel}）`
+    : "【黒板予定】今週分を送ります";
 
   const text = [
-    "今週の黒板用予定表が更新されました。",
+    "今週の黒板用予定表です。",
     "",
-    "印刷用ページ:",
-    pageUrl,
-    "",
-    "月曜朝にこのURLを開いて印刷し、子どもに渡してください。",
+    "PDFを添付しました。印刷して、係の児童に渡してください。",
     "",
     "— weekly-blackboard-schedule",
   ].join("\n");
 
   const html = `
-    <p>今週の黒板用予定表が更新されました。</p>
-    <p><a href="${pageUrl}">${pageUrl}</a></p>
-    <p>月曜朝にこのURLを開いて印刷し、子どもに渡してください。</p>
+    <p>今週の黒板用予定表です。</p>
+    <p>PDFを添付しました。印刷して、係の児童に渡してください。</p>
   `;
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -67,6 +74,12 @@ async function main() {
       subject,
       text,
       html,
+      attachments: [
+        {
+          filename: "weekly-schedule.pdf",
+          content: pdfBase64,
+        },
+      ],
     }),
   });
 
@@ -76,7 +89,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("メール送信OK:", to);
+  console.log("メール送信OK（PDF添付）");
   console.log(body);
 }
 

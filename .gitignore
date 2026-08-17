@@ -7,3 +7,4 @@ data/school-annual.xlsx
 data/*行事*.csv
 data/R*.csv
 data/R*.xlsx
+public/*.pdf

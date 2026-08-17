@@ -512,7 +512,7 @@ function renderHtml({ weekStart, events, generatedAt, sourceLabel }) {
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic UI", "Noto Sans JP", sans-serif;
+      font-family: "Noto Sans CJK JP", "Noto Sans JP", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
       background:
         radial-gradient(ellipse 70% 40% at 10% 0%, #d9eef2 0%, transparent 55%),
         linear-gradient(180deg, #eef6f8 0%, var(--paper) 40%, #fff 100%);

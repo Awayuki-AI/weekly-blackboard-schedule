@@ -9,9 +9,11 @@
     "generate:sample": "node src/generate.js --source=school --week-start=2026-08-25",
     "generate:sheet": "node src/generate.js --source=sheet --week-start=2026-08-31",
     "import:xlsx": "node src/import-xlsx.js",
+    "pdf": "node src/html-to-pdf.js",
     "send:mail": "node src/send-mail.js"
   },
   "dependencies": {
+    "playwright": "^1.62.1",
     "xlsx": "^0.18.5"
   }
 }

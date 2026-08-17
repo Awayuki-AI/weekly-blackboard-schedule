@@ -4,7 +4,7 @@
 
 1週間の予定の紙を、できるだけ楽に自動で用意する方法はないか考えて作りました。**私だけの、私が便利になるツール**です。
 
-日曜の夜に今週分が更新され、印刷用のページがメールで届きます。月曜朝は、その紙を子どもに渡すだけです。
+日曜の夜に今週分のPDFがメールに届きます。月曜朝は、添付を印刷して子どもに渡すだけです。
 
 ## 動いているもの
 
@@ -19,7 +19,7 @@
 | トリガー | 毎週日曜 20:00（GitHub Actions） |
 | ソース元 | 学校の年間予定Excel（行事予定の列） |
 | 処理 | 翌月曜〜日曜を抜き出し、印刷用HTMLにする |
-| 届ける先 | GitHub Pages の同じURL ＋ メール通知 |
+| 届ける先 | 学校メールにPDFを添付（Resend） |
 
 校務の掲示板はログイン必須だったので、掲示板直結はしませんでした。閲覧のみの年間Excelをダウンロードし、子ども向けの行だけ使います。原本には日直名などが入るので、公開するのは行事だけです。
 
@@ -29,7 +29,7 @@
 2. このリポジトリの `data/school-annual.xlsx` に置く
 3. `npm run import:xlsx` で公開用データにする
 4. GitHub に push する
-5. 日曜 20:00 にページが更新され、メールが届く
+5. 日曜 20:00 にPDF付きメールが届く
 6. 月曜に印刷して、係の児童に渡す
 
 ## 技術メモ
@@ -38,10 +38,11 @@
 npm install
 npm run import:xlsx
 npm run generate
+npm run pdf
 ```
 
 - 自動更新: `.github/workflows/weekly.yml`（日曜 20:00 JST）
-- メール: Resend。宛先は GitHub Secrets の `MAIL_TO`
+- メール: Resend。宛先は GitHub Secrets の `MAIL_TO`。リンクではなくPDFを添付する（学校メールでURLが開けないため）
 - Excelは git に上げない（`.gitignore`）。Actions は `data/school-events.json` を読む
 - 特定の週を見る: `node src/generate.js --source=school --week-start=2026-08-25`
 
