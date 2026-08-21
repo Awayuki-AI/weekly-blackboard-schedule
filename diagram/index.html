@@ -1,584 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>教室の黒板予定を、日曜のメール1通にするまで</title>
-  <style>
-    :root {
-      --ink: #243b55;
-      --muted: #5a7a90;
-      --sky: #7ec8e8;
-      --sky-soft: #d7f0fb;
-      --aqua: #b8ebe4;
-      --aqua-deep: #3aa8a0;
-      --mint: #d8f5df;
-      --leaf: #3faf6b;
-      --lemon: #ffe566;
-      --lemon-soft: #fff6b8;
-      --paper: #f3fbff;
-      --line: #c5e4f2;
-      --band: #4aa3d4;
-      --band-deep: #2b7eb5;
-      --trigger: #5bb8e8;
-      --source: #57c4b8;
-      --process: #62c47a;
-      --deliver: #e6c83a;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse 100% 55% at 50% -5%, #9fd8f5 0%, transparent 58%),
-        radial-gradient(ellipse 50% 35% at 90% 20%, #fff6b8 0%, transparent 50%),
-        linear-gradient(180deg, #e8f7ff 0%, var(--paper) 40%, #f7fffb 100%);
-      min-height: 100vh;
-      padding: 2rem 1rem 3.5rem;
-    }
-
-    .wrap { max-width: 920px; margin: 0 auto; }
-
-    header {
-      text-align: center;
-      margin-bottom: 2.4rem;
-      animation: rise 0.6s ease both;
-    }
-
-    .badge {
-      display: inline-block;
-      background: var(--lemon-soft);
-      color: #7a6a10;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      font-size: 0.78rem;
-      margin-bottom: 0.55rem;
-      padding: 0.25rem 0.55rem;
-      border: 1px solid #f0e089;
-    }
-
-    h1 {
-      font-size: clamp(1.7rem, 4.2vw, 2.35rem);
-      line-height: 1.32;
-      margin-bottom: 0.7rem;
-      font-weight: 800;
-      color: #1f5f8a;
-    }
-
-    .lead {
-      color: var(--muted);
-      line-height: 1.8;
-      max-width: 38rem;
-      margin: 0 auto;
-      font-size: 1.02rem;
-    }
-
-    .timeline {
-      position: relative;
-      padding-bottom: 0.5rem;
-    }
-
-    .spine-line {
-      position: absolute;
-      left: 50%;
-      top: 10px;
-      bottom: 2.2rem;
-      width: 4px;
-      margin-left: -2px;
-      background: linear-gradient(
-        180deg,
-        var(--lemon) 0%,
-        var(--sky) 18%,
-        var(--aqua-deep) 45%,
-        var(--leaf) 72%,
-        var(--deliver) 100%
-      );
-      border-radius: 4px;
-      box-shadow: 0 0 18px rgba(126, 200, 232, 0.45);
-      transform-origin: top;
-      animation: grow 1.35s ease both;
-      z-index: 0;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 56px 1fr;
-      align-items: start;
-      position: relative;
-      z-index: 1;
-      padding: 0.35rem 0;
-      animation: rise 0.7s ease both;
-    }
-
-    .row:nth-child(2) { animation-delay: 0.05s; }
-    .row:nth-child(3) { animation-delay: 0.1s; }
-    .row:nth-child(4) { animation-delay: 0.14s; }
-    .row:nth-child(5) { animation-delay: 0.18s; }
-    .row:nth-child(6) { animation-delay: 0.22s; }
-    .row:nth-child(7) { animation-delay: 0.26s; }
-    .row:nth-child(8) { animation-delay: 0.3s; }
-    .row:nth-child(9) { animation-delay: 0.34s; }
-    .row:nth-child(10) { animation-delay: 0.38s; }
-    .row:nth-child(11) { animation-delay: 0.42s; }
-    .row:nth-child(12) { animation-delay: 0.46s; }
-    .row:nth-child(13) { animation-delay: 0.5s; }
-
-    .rail {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 0.2rem;
-    }
-
-    .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #fff;
-      border: 3px solid var(--sky);
-      box-shadow: 0 0 0 5px rgba(126, 200, 232, 0.22);
-      flex-shrink: 0;
-    }
-
-    .dot.lemon {
-      width: 20px;
-      height: 20px;
-      border-color: #e6c83a;
-      background: var(--lemon);
-      box-shadow: 0 0 0 7px rgba(255, 229, 102, 0.35);
-    }
-
-    .dot.tick {
-      width: 10px;
-      height: 10px;
-      border-width: 2px;
-      border-color: var(--aqua-deep);
-      box-shadow: 0 0 0 4px rgba(58, 168, 160, 0.16);
-    }
-
-    .dot.trigger { border-color: var(--trigger); box-shadow: 0 0 0 6px rgba(91, 184, 232, 0.22); width: 18px; height: 18px; }
-    .dot.source  { border-color: var(--source);  box-shadow: 0 0 0 6px rgba(87, 196, 184, 0.22); width: 18px; height: 18px; }
-    .dot.process { border-color: var(--process); box-shadow: 0 0 0 6px rgba(98, 196, 122, 0.22); width: 18px; height: 18px; }
-    .dot.deliver { border-color: var(--deliver); background: var(--lemon-soft); box-shadow: 0 0 0 6px rgba(230, 200, 58, 0.28); width: 18px; height: 18px; }
-    .dot.arrive  { border-color: var(--leaf); background: var(--mint); box-shadow: 0 0 0 7px rgba(63, 175, 107, 0.22); width: 20px; height: 20px; }
-
-    .left, .right {
-      min-height: 1.4rem;
-      padding: 0 0.85rem;
-    }
-
-    .left { text-align: right; }
-    .right { text-align: left; }
-
-    .era {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      margin-bottom: 0.45rem;
-    }
-
-    .era.before { color: #7a93a6; }
-    .era.after { color: var(--leaf); }
-
-    .side-copy {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.7;
-      list-style: none;
-    }
-
-    .side-copy li + li { margin-top: 0.2rem; }
-
-    .left .side-copy { color: #7a93a6; }
-
-    .note {
-      font-size: 0.92rem;
-      line-height: 1.65;
-      color: var(--ink);
-      position: relative;
-    }
-
-    .note strong {
-      font-weight: 800;
-      color: #1f5f8a;
-    }
-
-    .note .result {
-      display: block;
-      margin-top: 0.12rem;
-      color: var(--aqua-deep);
-      font-weight: 700;
-      font-size: 0.88rem;
-    }
-
-    .left .note::after,
-    .right .note::before {
-      content: "";
-      position: absolute;
-      top: 0.72em;
-      height: 1px;
-      width: 0.85rem;
-      background: var(--line);
-    }
-
-    .left .note::after { right: -0.85rem; }
-    .right .note::before { left: -0.85rem; }
-
-    .kicker {
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      margin-bottom: 0.18rem;
-    }
-
-    .station h3 {
-      font-size: 1.18rem;
-      font-weight: 800;
-      color: #1f5f8a;
-      margin-bottom: 0.28rem;
-      line-height: 1.3;
-    }
-
-    .station p {
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .station.trigger .kicker { color: var(--band-deep); }
-    .station.source .kicker { color: var(--aqua-deep); }
-    .station.process .kicker { color: #2a7a48; }
-    .station.deliver .kicker { color: #8a7410; }
-
-    .chapter-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      color: var(--band-deep);
-      padding-top: 0.12rem;
-    }
-
-    .row.chapter {
-      padding-top: 1.1rem;
-      padding-bottom: 0.15rem;
-    }
-
-    .hook-copy {
-      font-size: 1.08rem;
-      font-weight: 800;
-      color: #1f5f8a;
-      line-height: 1.55;
-    }
-
-    .hook-copy span {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--muted);
-      margin-top: 0.25rem;
-    }
-
-    .arrive-copy {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #2a7a48;
-      line-height: 1.5;
-    }
-
-    .arrive-copy span {
-      display: block;
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: var(--muted);
-      margin-top: 0.2rem;
-    }
-
-    .shot {
-      margin-top: 0.4rem;
-      text-align: center;
-      animation: rise 0.8s ease both;
-      animation-delay: 0.55s;
-    }
-
-    .shot img {
-      display: block;
-      width: 100%;
-      max-width: 820px;
-      height: auto;
-      margin: 0 auto;
-      border: 2px solid #9fd8f5;
-      border-radius: 4px;
-      box-shadow: 0 12px 32px rgba(74, 163, 212, 0.18);
-      background: #fff;
-      object-fit: contain;
-    }
-
-    .shot-caption {
-      margin: 0.7rem auto 0;
-      max-width: 820px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .epilogue {
-      margin: 1.6rem auto 0;
-      max-width: 36rem;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 0.98rem;
-    }
-
-    .epilogue strong { color: #1f5f8a; }
-
-    .links {
-      margin-top: 0.85rem;
-      font-size: 0.92rem;
-    }
-
-    .links a {
-      color: var(--band-deep);
-      font-weight: 700;
-    }
-
-    .alt-link {
-      margin-top: 1.4rem;
-      text-align: center;
-      font-size: 0.88rem;
-    }
-
-    .alt-link a { color: var(--muted); }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes grow {
-      from { transform: scaleY(0); }
-      to { transform: scaleY(1); }
-    }
-
-    @media (max-width: 720px) {
-      header { text-align: left; }
-      .lead { margin: 0; }
-
-      .spine-line {
-        left: 17px;
-        margin-left: 0;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI-Driven School 2026　卒業制作</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #2c2c2c;
+        --muted: #5a6570;
+        --paper: #f7f4ee;
+        --sheet: #fffcf7;
+        --dayori: #3b82c4;
+        --dayori-soft: #e7f2fb;
+        --board: #1f4d36;
+        --board-soft: #e7f0ea;
+        --font-h: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+        --font-b: "BIZ UDGothic", "Hiragino Sans", sans-serif;
       }
-
-      .row {
-        grid-template-columns: 34px 1fr;
-        padding: 0.55rem 0;
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: var(--font-b);
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse at 50% 0%, #fff 0%, var(--paper) 70%);
       }
-
-      .rail { grid-column: 1; grid-row: 1 / -1; }
-
-      .left, .right {
-        grid-column: 2;
-        text-align: left;
-        padding: 0 0 0 0.7rem;
+      .sheet {
+        min-height: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 28px 56px;
+        position: relative;
       }
-
-      .left + .rail { grid-row: 1 / -1; }
-
-      .row .left:empty,
-      .row .right:empty { display: none; }
-
-      .left .note::after,
-      .right .note::before { display: none; }
-    }
-
-    @media print {
-      body { background: #fff; padding: 0; }
-      .spine-line { box-shadow: none; animation: none; }
-      .row, header, .shot { animation: none; }
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <div class="badge">卒業制作 · 対話の記録</div>
-      <h1>教室の黒板予定を、<br />日曜のメール1通にするまで</h1>
-      <p class="lead">
-        小学校の教室横に、1週間の予定を書く黒板がある。月曜に紙を係の児童へ渡すのが地味に面倒で、よく忘れる。
-        私だけの、私が便利になるツールとして作った。
-      </p>
-    </header>
-
-    <div class="timeline" aria-label="背骨タイムライン">
-      <div class="spine-line" aria-hidden="true"></div>
-
-      <div class="row">
-        <div class="left">
-          <p class="hook-copy">よく忘れる、月曜の紙。<span>毎週、係の児童に渡して黒板へ書いてもらう。</span></p>
-        </div>
-        <div class="rail"><span class="dot lemon" aria-hidden="true"></span></div>
-        <div class="right"></div>
-      </div>
-
-      <div class="row">
-        <div class="left">
-          <div class="era before">以前 · 手作業</div>
-          <ul class="side-copy">
-            <li>年間予定を目で追う</li>
-            <li>子ども向けだけ紙にまとめる</li>
-            <li>月曜に係へ渡す。よく忘れる</li>
-          </ul>
-        </div>
-        <div class="rail"><span class="dot" aria-hidden="true"></span></div>
-        <div class="right">
-          <div class="era after">いま · 自動化</div>
-          <ul class="side-copy">
-            <li>年間Excelを取り込む</li>
-            <li>日曜20時に今週分が更新される</li>
-            <li>学校メールが届き、印刷して渡す</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="row chapter">
-        <div class="left"></div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right"><p class="chapter-label">決めごと</p></div>
-      </div>
-
-      <div class="row">
-        <div class="left">
-          <p class="note">
-            <strong>掲示板はログイン必須</strong>
-            <span class="result">直結しない。原本を手元に置く。</span>
-          </p>
-        </div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right"></div>
-      </div>
-
-      <div class="row">
-        <div class="left"></div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right">
-          <p class="note">
-            <strong>CSVは月ごと</strong>
-            <span class="result">年間Excelを正とする。行事予定列だけ。日直名は出さない。</span>
-          </p>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="left">
-          <p class="note">
-            <strong>朝6時出勤</strong>
-            <span class="result">日曜20:00に、同じURLを更新する。</span>
-          </p>
-        </div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right"></div>
-      </div>
-
-      <div class="row">
-        <div class="left"></div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right">
-          <p class="note">
-            <strong>学校メールへ</strong>
-            <span class="result">最初は迷惑メール。解除して、届くようにした。</span>
-          </p>
-        </div>
-      </div>
-
-      <div class="row chapter">
-        <div class="left"></div>
-        <div class="rail"><span class="dot tick" aria-hidden="true"></span></div>
-        <div class="right"><p class="chapter-label">動かす</p></div>
-      </div>
-
-      <div class="row">
-        <div class="left"></div>
-        <div class="rail"><span class="dot trigger" aria-hidden="true"></span></div>
-        <div class="right">
-          <article class="station trigger">
-            <p class="kicker">TRIGGER</p>
-            <h3>トリガー</h3>
-            <p>毎週日曜 20:00。GitHub Actions。朝6時出勤の前に、表ができている。</p>
-          </article>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="left">
-          <article class="station source">
-            <p class="kicker">SOURCE</p>
-            <h3>ソース</h3>
-            <p>学校の年間予定Excel。閲覧のみ原本から、行事予定の列だけ使う。</p>
-          </article>
-        </div>
-        <div class="rail"><span class="dot source" aria-hidden="true"></span></div>
-        <div class="right"></div>
-      </div>
-
-      <div class="row">
-        <div class="left"></div>
-        <div class="rail"><span class="dot process" aria-hidden="true"></span></div>
-        <div class="right">
-          <article class="station process">
-            <p class="kicker">PROCESS</p>
-            <h3>処理</h3>
-            <p>翌月曜〜日曜を抜き出し、印刷用のHTMLにする。</p>
-          </article>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="left">
-          <article class="station deliver">
-            <p class="kicker">DELIVER</p>
-            <h3>届ける先</h3>
-            <p>GitHub Pages の同じURLを更新し、学校メールへ今週分のリンクを送る。</p>
-          </article>
-        </div>
-        <div class="rail"><span class="dot deliver" aria-hidden="true"></span></div>
-        <div class="right"></div>
-      </div>
-
-      <div class="row">
-        <div class="left"></div>
-        <div class="rail"><span class="dot arrive" aria-hidden="true"></span></div>
-        <div class="right">
-          <p class="arrive-copy">到着。<span>月曜に印刷して、子どもへ渡す表。</span></p>
-        </div>
-      </div>
-    </div>
-
-    <section class="shot" aria-label="完成した報告ツールの画面">
-      <img
-        src="assets/tool-screenshot.png"
-        alt="今週の予定（黒板用）の印刷画面。8月25日週の始業式などが並んでいる"
-        width="1200"
-        height="900"
-      />
-      <p class="shot-caption">
-        公開ページの例（2学期始めの週）。月曜に印刷して子どもへ渡し、黒板へ書いてもらう。
-      </p>
-    </section>
-
-    <p class="epilogue">
-      掲示板直結も、原本を毎回自動で取りに行くことも、やらなかった。
-      できるところだけ自動化して、紙を渡す瞬間だけ人手に残した。
-      <strong>完璧な連携より、月曜に忘れないこと。</strong>
-      <span class="links">
-        公開ページ:
-        <a href="https://awayuki-ai.github.io/weekly-blackboard-schedule/" target="_blank" rel="noopener">
-          awayuki-ai.github.io/weekly-blackboard-schedule
+      header {
+        text-align: center;
+        margin-bottom: 22px;
+      }
+      h1 {
+        margin: 0;
+        font-family: var(--font-h);
+        font-size: 28pt;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1.35;
+      }
+      .role {
+        margin: 8px 0 0;
+        font-family: var(--font-h);
+        font-size: 16pt;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .doors {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+        align-items: stretch;
+      }
+      .door {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        background: var(--sheet);
+        border-radius: 18px;
+        overflow: hidden;
+        border: 2px solid #d7dde3;
+        box-shadow: 0 10px 28px rgba(60, 70, 80, 0.08);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .door:hover,
+      .door:focus-visible {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 36px rgba(60, 70, 80, 0.14);
+      }
+      .door:focus-visible {
+        outline: 3px solid var(--dayori);
+        outline-offset: 3px;
+      }
+      .door.board:focus-visible { outline-color: var(--board); }
+      .door.dayori { border-color: #b7d3ea; background: var(--dayori-soft); }
+      .door.board { border-color: #9cbfab; background: var(--board-soft); }
+      .thumb {
+        height: 280px;
+        overflow: hidden;
+        position: relative;
+        pointer-events: none;
+        background: #fff;
+      }
+      .thumb iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1280px;
+        height: 900px;
+        border: 0;
+        transform: scale(0.42);
+        transform-origin: top left;
+      }
+      .copy {
+        padding: 14px 16px 16px;
+      }
+      .copy h2 {
+        margin: 0;
+        font-family: var(--font-h);
+        font-size: 20pt;
+        font-weight: 700;
+      }
+      .door.dayori h2 { color: var(--dayori); }
+      .door.board h2 { color: var(--board); }
+      .copy p {
+        margin: 8px 0 0;
+        font-size: 16pt;
+        line-height: 1.55;
+      }
+      .open {
+        display: inline-block;
+        margin-top: 10px;
+        font-family: var(--font-h);
+        font-size: 13pt;
+        font-weight: 700;
+      }
+      .door.dayori .open { color: var(--dayori); }
+      .door.board .open { color: var(--board); }
+      .whisper {
+        display: block;
+        width: fit-content;
+        margin: 18px auto 0;
+        font-family: var(--font-h);
+        font-size: 11pt;
+        font-weight: 500;
+        color: #d4cfc6;
+        text-decoration: none;
+        letter-spacing: 0.08em;
+      }
+      .whisper:hover { color: #b7b1a7; }
+      .whisper:focus-visible {
+        outline: 1px solid #cfc8bc;
+        outline-offset: 3px;
+        color: #b7b1a7;
+      }
+      .sign {
+        position: absolute;
+        right: 28px;
+        bottom: 18px;
+        margin: 0;
+        font-family: var(--font-h);
+        font-size: 11pt;
+        color: #8a9198;
+        letter-spacing: 0.04em;
+      }
+      @media (max-width: 900px) {
+        .doors { grid-template-columns: 1fr; }
+        h1 { font-size: 22pt; }
+        .sign { position: static; text-align: right; margin-top: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="sheet">
+      <header>
+        <h1>AI-Driven School 2026　卒業制作</h1>
+        <p class="role">第１期 金曜クラス　cellグループ　永田陽香</p>
+      </header>
+      <div class="doors">
+        <a class="door dayori" href="dayori.html">
+          <div class="thumb">
+            <iframe src="dayori.html" title="" tabindex="-1" aria-hidden="true"></iframe>
+          </div>
+          <div class="copy">
+            <h2>学級便り</h2>
+            <p>文章は苦ではない。痛いのは写真の配置</p>
+            <span class="open">図解を開く →</span>
+          </div>
         </a>
-      </span>
-    </p>
-    <p class="alt-link"><a href="b.html">別案：黒板チョーク調</a></p>
-  </div>
-</body>
+        <a class="door board" href="b.html">
+          <div class="thumb">
+            <iframe src="b.html" title="" tabindex="-1" aria-hidden="true"></iframe>
+          </div>
+          <div class="copy">
+            <h2>今週の予定（黒板）</h2>
+            <p>毎週月曜、予定の紙を係に渡すのを忘れる</p>
+            <span class="open">図解を開く →</span>
+          </div>
+        </a>
+      </div>
+      <a class="whisper" href="learned.html">半年で学んだこと</a>
+      <p class="sign">2026年3月6日〜2026年8月28日</p>
+    </main>
+  </body>
 </html>

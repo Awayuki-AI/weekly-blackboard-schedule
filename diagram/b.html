@@ -25,16 +25,54 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body { height: 100%; }
+
     body {
       font-family: "Klee One", "Yu Gothic", "Hiragino Maru Gothic ProN", sans-serif;
       color: var(--chalk);
       background:
         radial-gradient(ellipse at 50% 0%, #3a2a1c 0%, #1a120c 70%);
-      min-height: 100vh;
-      padding: 1.2rem 0.8rem 2.4rem;
+      overflow: hidden;
     }
 
-    .room { max-width: 1240px; margin: 0 auto; }
+    .back {
+      position: fixed;
+      top: 0.7rem;
+      left: 1rem;
+      z-index: 5;
+      color: #f4f0e1;
+      font-size: 16pt;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .back:hover, .back:focus-visible { text-decoration: underline; }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+    }
+    .deck::-webkit-scrollbar { display: none; }
+
+    .slide {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3.2rem 0.8rem 4.2rem;
+    }
+
+    .room {
+      width: min(1240px, 100%);
+      margin: 0 auto;
+    }
 
     .board {
       position: relative;
@@ -78,8 +116,12 @@
 
     .smudge.a { top: 18%; left: 8%; transform: rotate(-8deg); }
     .smudge.b { top: 58%; right: 10%; width: 180px; }
+    .slide:nth-child(2) .smudge.a { top: 12%; left: 70%; }
+    .slide:nth-child(3) .smudge.b { top: 22%; right: 18%; }
+    .slide:nth-child(5) .smudge.a { top: 40%; left: 20%; }
 
-    header { position: relative; z-index: 1; text-align: center; margin-bottom: 1.5rem; }
+    header, section, .close { position: relative; z-index: 1; }
+    header { text-align: center; margin-bottom: 1.3rem; }
 
     .badge {
       display: inline-block;
@@ -108,11 +150,9 @@
       color: var(--chalk);
     }
 
-    section { position: relative; z-index: 1; margin-bottom: 1.55rem; }
-
     .label {
       display: table;
-      margin: 0 auto 0.85rem;
+      margin: 0 auto 0.95rem;
       font-family: "Yusei Magic", "Klee One", sans-serif;
       font-size: var(--body);
       letter-spacing: 0.12em;
@@ -125,12 +165,12 @@
       box-shadow: 0 0 0 1px rgba(255, 183, 200, 0.25);
     }
 
-    section:nth-of-type(3) .label {
+    .slide:nth-child(3) .label {
       transform: rotate(1.3deg);
       border-radius: 32% 48% 28% 40% / 45% 30% 48% 35%;
     }
 
-    section:nth-of-type(4) .label {
+    .slide:nth-child(4) .label {
       transform: rotate(-0.5deg);
       border-radius: 38% 30% 42% 36% / 40% 44% 32% 38%;
     }
@@ -164,9 +204,7 @@
       font-size: var(--body);
     }
 
-    .compare ul li {
-      white-space: nowrap;
-    }
+    .compare ul li { white-space: nowrap; }
 
     .chalk-arrow {
       font-family: "Yusei Magic", sans-serif;
@@ -262,8 +300,8 @@
 
     .paper-wrap {
       position: relative;
-      max-width: 760px;
-      margin: 0.4rem auto 0;
+      max-width: 640px;
+      margin: 0.2rem auto 0;
       transform: rotate(-0.7deg);
     }
 
@@ -276,13 +314,15 @@
       z-index: 2;
     }
 
-    .tape.tl { top: -8px; left: 18px; transform: rotate(-12deg); }
-    .tape.tr { top: -6px; right: 28px; transform: rotate(9deg); }
+    .tape.tl { top: 0; left: 22%; transform: rotate(-12deg); }
+    .tape.tr { top: 2px; right: 22%; transform: rotate(9deg); }
 
     .paper-wrap img {
       display: block;
-      width: 100%;
-      height: auto;
+      width: auto;
+      max-width: 100%;
+      max-height: 48vh;
+      margin: 0 auto;
       background: #fff;
       border: 8px solid #f7f1e4;
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
@@ -301,21 +341,22 @@
     .close {
       text-align: center;
       max-width: 34rem;
-      margin: 0.4rem auto 0;
+      margin: 0 auto;
       line-height: 1.85;
       font-size: var(--body);
+      padding: 1.4rem 0.6rem;
     }
 
     .close strong {
       display: block;
-      margin-top: 0.45rem;
+      margin-top: 0.7rem;
       color: var(--yellow);
       font-family: "Yusei Magic", sans-serif;
       font-size: 20pt;
       font-weight: 400;
     }
 
-    .links { display: block; margin-top: 0.7rem; font-size: var(--body); }
+    .links { display: block; margin-top: 0.9rem; font-size: var(--body); }
     .links a { color: var(--sky); }
 
     .tray {
@@ -345,6 +386,59 @@
       margin-left: auto;
     }
 
+    .nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0.7rem;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .nav button {
+      font-family: "Klee One", sans-serif;
+      font-size: 16pt;
+      color: var(--chalk);
+      background: rgba(22, 56, 40, 0.75);
+      border: 2px solid var(--chalk);
+      border-radius: 999px;
+      padding: 0.15rem 0.9rem 0.2rem;
+      cursor: pointer;
+    }
+
+    .nav button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .dots {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .dots button {
+      width: 12px;
+      height: 12px;
+      padding: 0;
+      border-radius: 50%;
+      background: transparent;
+      border: 2px solid var(--chalk-dim);
+    }
+
+    .dots button.on {
+      background: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    body.in-frame .back,
+    body.in-frame .nav { display: none; }
+    body.in-frame { overflow: hidden; }
+    body.in-frame .deck { overflow: hidden; }
+    body.in-frame .slide { height: auto; min-height: auto; padding: 0.6rem; }
+    body.in-frame .slide:not(:first-child) { display: none; }
+
     @media (max-width: 760px) {
       .board { border-width: 10px; padding: 1.15rem 0.9rem 1.3rem; }
       .compare, .notes, .flow { grid-template-columns: max-content; }
@@ -352,121 +446,235 @@
       .compare, .notes { gap: 0.7rem; }
       .compare ul li, .note span, .note strong, .part p { white-space: normal; }
     }
-
-    @media print {
-      body { background: #fff; padding: 0; }
-      .board { box-shadow: none; }
-    }
   </style>
 </head>
 <body>
-  <div class="room">
-    <div class="board">
-      <span class="smudge a" aria-hidden="true"></span>
-      <span class="smudge b" aria-hidden="true"></span>
+  <a class="back" href="/">← 表紙へ戻る</a>
 
-      <header>
-        <div class="badge">卒業制作 · 対話の記録</div>
-        <h1>教室の黒板予定を、<br />日曜のメール1通にするまで</h1>
-        <p class="lead">
-          小学校の教室横に、1週間の予定を書く黒板がある。月曜に紙を係の児童へ渡すのが地味に面倒で、よく忘れる。
-          私だけの、私が便利になるツールとして作った。
-        </p>
-      </header>
-
-      <section aria-label="以前といま">
-        <div class="compare">
-          <div class="before">
-            <p class="era-title">以前 · 手作業</p>
-            <ul>
-              <li>年間予定を目で追う</li>
-              <li>子ども向けだけ紙にまとめる</li>
-              <li>月曜に係へ渡す。よく忘れる</li>
-            </ul>
+  <div class="deck" id="deck">
+    <section class="slide" id="board-1" aria-label="タイトルといま">
+      <div class="room">
+        <div class="board">
+          <span class="smudge a" aria-hidden="true"></span>
+          <span class="smudge b" aria-hidden="true"></span>
+          <header>
+            <div class="badge">卒業制作 · 対話の記録</div>
+            <h1>教室の黒板予定を、<br />日曜のメール1通にするまで</h1>
+            <p class="lead">
+              小学校の教室横に、1週間の予定を書く黒板がある。月曜に紙を係の児童へ渡すのが地味に面倒で、よく忘れる。
+              私だけの、私が便利になるツールとして作った。
+            </p>
+          </header>
+          <div class="compare">
+            <div class="before">
+              <p class="era-title">以前 · 手作業</p>
+              <ul>
+                <li>年間予定を目で追う</li>
+                <li>子ども向けだけ紙にまとめる</li>
+                <li>月曜に係へ渡す。よく忘れる</li>
+              </ul>
+            </div>
+            <div class="chalk-arrow" aria-hidden="true">→</div>
+            <div class="after">
+              <p class="era-title">いま · 自動化</p>
+              <ul>
+                <li>年間Excelを取り込む</li>
+                <li>日曜20時に今週分が更新される</li>
+                <li>学校メールが届き、印刷して渡す</li>
+              </ul>
+            </div>
           </div>
-          <div class="chalk-arrow" aria-hidden="true">→</div>
-          <div class="after">
-            <p class="era-title">いま · 自動化</p>
-            <ul>
-              <li>年間Excelを取り込む</li>
-              <li>日曜20時に今週分が更新される</li>
-              <li>学校メールが届き、印刷して渡す</li>
-            </ul>
+        </div>
+        <div class="tray" aria-hidden="true">
+          <span class="stick w"></span>
+          <span class="stick y"></span>
+          <span class="stick b"></span>
+          <span class="eraser"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="board-2" aria-label="決めごと">
+      <div class="room">
+        <div class="board">
+          <span class="smudge a" aria-hidden="true"></span>
+          <span class="smudge b" aria-hidden="true"></span>
+          <p class="label">決めごと</p>
+          <div class="notes">
+            <p class="note"><strong><span class="num">1</span>掲示板はログイン必須</strong><span>直結しない。原本を手元に置く。</span></p>
+            <p class="note"><strong><span class="num">2</span>CSVは月ごと</strong><span>年間Excelを正とする。行事予定列だけ。<br />日直名は出さない。</span></p>
+            <p class="note"><strong><span class="num">3</span>朝6時出勤</strong><span>日曜20:00に、同じURLを更新する。</span></p>
+            <p class="note"><strong><span class="num">4</span>学校メールへ</strong><span>最初は迷惑メール。<br />解除して、届くようにした。</span></p>
           </div>
         </div>
-      </section>
-
-      <section aria-label="やりとりの決めごと">
-        <p class="label">決めごと</p>
-        <div class="notes">
-          <p class="note"><strong><span class="num">1</span>掲示板はログイン必須</strong><span>直結しない。原本を手元に置く。</span></p>
-          <p class="note"><strong><span class="num">2</span>CSVは月ごと</strong><span>年間Excelを正とする。行事予定列だけ。<br />日直名は出さない。</span></p>
-          <p class="note"><strong><span class="num">3</span>朝6時出勤</strong><span>日曜20:00に、同じURLを更新する。</span></p>
-          <p class="note"><strong><span class="num">4</span>学校メールへ</strong><span>最初は迷惑メール。<br />解除して、届くようにした。</span></p>
+        <div class="tray" aria-hidden="true">
+          <span class="stick w"></span>
+          <span class="stick y"></span>
+          <span class="stick b"></span>
+          <span class="eraser"></span>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section aria-label="自動化の4パーツ">
-        <p class="label">動かす</p>
-        <div class="flow">
-          <article class="part">
-            <div class="bubble">TRIGGER</div>
-            <h3>トリガー</h3>
-            <p>毎週日曜 20:00。GitHub Actions。</p>
-          </article>
-          <article class="part">
-            <div class="bubble">SOURCE</div>
-            <h3>ソース</h3>
-            <p>学校の年間予定Excel。行事予定の列だけ。</p>
-          </article>
-          <article class="part">
-            <div class="bubble">PROCESS</div>
-            <h3>処理</h3>
-            <p>翌月曜〜日曜を抜き、印刷用HTMLに。</p>
-          </article>
-          <article class="part">
-            <div class="bubble">DELIVER</div>
-            <h3>届ける先</h3>
-            <p>同じURLを更新し、学校メールへ。</p>
-          </article>
+    <section class="slide" id="board-3" aria-label="動かす">
+      <div class="room">
+        <div class="board">
+          <span class="smudge a" aria-hidden="true"></span>
+          <span class="smudge b" aria-hidden="true"></span>
+          <p class="label">動かす</p>
+          <div class="flow">
+            <article class="part">
+              <div class="bubble">TRIGGER</div>
+              <h3>トリガー</h3>
+              <p>毎週日曜 20:00。GitHub Actions。</p>
+            </article>
+            <article class="part">
+              <div class="bubble">SOURCE</div>
+              <h3>ソース</h3>
+              <p>学校の年間予定Excel。行事予定の列だけ。</p>
+            </article>
+            <article class="part">
+              <div class="bubble">PROCESS</div>
+              <h3>処理</h3>
+              <p>翌月曜〜日曜を抜き、印刷用HTMLに。</p>
+            </article>
+            <article class="part">
+              <div class="bubble">DELIVER</div>
+              <h3>届ける先</h3>
+              <p>同じURLを更新し、学校メールへ。</p>
+            </article>
+          </div>
         </div>
-      </section>
-
-      <section aria-label="完成した報告ツールの画面">
-        <p class="label">到着。月曜に渡す表</p>
-        <div class="paper-wrap">
-          <span class="tape tl" aria-hidden="true"></span>
-          <span class="tape tr" aria-hidden="true"></span>
-          <img
-            src="assets/tool-screenshot.png"
-            alt="今週の予定（黒板用）の印刷画面。8月25日週の始業式などが並んでいる"
-            width="1200"
-            height="900"
-          />
+        <div class="tray" aria-hidden="true">
+          <span class="stick w"></span>
+          <span class="stick y"></span>
+          <span class="stick b"></span>
+          <span class="eraser"></span>
         </div>
-        <p class="shot-caption">
-          公開ページの例（2学期始めの週）。月曜に印刷して子どもへ渡し、黒板へ書いてもらう。
-        </p>
-      </section>
+      </div>
+    </section>
 
-      <p class="close">
-        掲示板直結も、原本を毎回自動で取りに行くことも、やらなかった。
-        できるところだけ自動化して、紙を渡す瞬間だけ人手に残した。
-        <strong>完璧な連携より、月曜に忘れないこと。</strong>
-        <span class="links">
-          公開ページ:
-          <a href="https://awayuki-ai.github.io/weekly-blackboard-schedule/" target="_blank" rel="noopener">
-            awayuki-ai.github.io/weekly-blackboard-schedule
-          </a>
-        </span>
-      </p>
-    </div>
-    <div class="tray" aria-hidden="true">
-      <span class="stick w"></span>
-      <span class="stick y"></span>
-      <span class="stick b"></span>
-      <span class="eraser"></span>
-    </div>
+    <section class="slide" id="board-4" aria-label="到着。月曜に渡す表">
+      <div class="room">
+        <div class="board">
+          <span class="smudge a" aria-hidden="true"></span>
+          <span class="smudge b" aria-hidden="true"></span>
+          <p class="label">到着。月曜に渡す表</p>
+          <div class="paper-wrap">
+            <span class="tape tl" aria-hidden="true"></span>
+            <span class="tape tr" aria-hidden="true"></span>
+            <img
+              src="assets/tool-screenshot.png"
+              alt="今週の予定（黒板用）の印刷画面。8月25日週の始業式などが並んでいる"
+              width="1200"
+              height="900"
+            />
+          </div>
+          <p class="shot-caption">
+            公開ページの例（2学期始めの週）。月曜に印刷して子どもへ渡し、黒板へ書いてもらう。
+          </p>
+        </div>
+        <div class="tray" aria-hidden="true">
+          <span class="stick w"></span>
+          <span class="stick y"></span>
+          <span class="stick b"></span>
+          <span class="eraser"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="board-5" aria-label="終わりの言葉">
+      <div class="room">
+        <div class="board">
+          <span class="smudge a" aria-hidden="true"></span>
+          <span class="smudge b" aria-hidden="true"></span>
+          <p class="close">
+            掲示板直結も、原本を毎回自動で取りに行くことも、やらなかった。
+            できるところだけ自動化して、紙を渡す瞬間だけ人手に残した。
+            <strong>完璧な連携より、月曜に忘れないこと。</strong>
+            <span class="links">
+              公開ページ:
+              <a href="https://awayuki-ai.github.io/weekly-blackboard-schedule/" target="_blank" rel="noopener">
+                awayuki-ai.github.io/weekly-blackboard-schedule
+              </a>
+            </span>
+          </p>
+        </div>
+        <div class="tray" aria-hidden="true">
+          <span class="stick w"></span>
+          <span class="stick y"></span>
+          <span class="stick b"></span>
+          <span class="eraser"></span>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <nav class="nav" aria-label="黒板の移動">
+    <button type="button" id="prev" aria-label="前の黒板">← 前</button>
+    <div class="dots" id="dots"></div>
+    <button type="button" id="next" aria-label="次の黒板">次 →</button>
+  </nav>
+
+  <script>
+    if (window.self !== window.top) document.body.classList.add("in-frame");
+
+    const deck = document.getElementById("deck");
+    const slides = [...document.querySelectorAll(".slide")];
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    const dotsWrap = document.getElementById("dots");
+    let index = 0;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "黒板 " + (i + 1));
+      dot.addEventListener("click", () => go(i));
+      dotsWrap.appendChild(dot);
+    });
+
+    const dots = [...dotsWrap.querySelectorAll("button")];
+
+    function go(n) {
+      index = Math.max(0, Math.min(slides.length - 1, n));
+      deck.scrollTo({ left: slides[index].offsetLeft, behavior: "smooth" });
+      update();
+    }
+
+    function update() {
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      dots.forEach((dot, i) => dot.classList.toggle("on", i === index));
+    }
+
+    prev.addEventListener("click", () => go(index - 1));
+    next.addEventListener("click", () => go(index + 1));
+
+    deck.addEventListener("scroll", () => {
+      const mid = deck.scrollLeft + deck.clientWidth / 2;
+      const nextIndex = slides.findIndex((slide) => {
+        const left = slide.offsetLeft;
+        return mid >= left && mid < left + slide.offsetWidth;
+      });
+      if (nextIndex >= 0 && nextIndex !== index) {
+        index = nextIndex;
+        update();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowRight", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        go(index + 1);
+      }
+      if (["ArrowUp", "ArrowLeft", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        go(index - 1);
+      }
+    });
+
+    update();
+  </script>
 </body>
 </html>
